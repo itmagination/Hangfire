@@ -402,7 +402,7 @@ namespace Hangfire.Core.Tests.Common
 	        var method = type.GetMethod("MethodWithDateTimeArgument");
 
             Assert.Throws<JsonReaderException>(
-                () => new Job(type, method, new []{ JobHelper.ToJson("sdfa") }));
+                () => new Job(type, method, new []{ JobHelper.Serialize("sdfa") }));
         }
 
         [Fact, StaticLock]

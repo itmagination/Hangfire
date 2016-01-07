@@ -26,6 +26,7 @@ using Hangfire.Server;
 
 namespace Hangfire.Storage
 {
+    [Serializable]
     public class InvocationData
     {
         public InvocationData(
@@ -47,7 +48,7 @@ namespace Hangfire.Storage
             try
             {
                 var type = System.Type.GetType(Type, throwOnError: true, ignoreCase: true);
-                var parameterTypes = JobHelper.FromJson<Type[]>(ParameterTypes);
+                var parameterTypes = JobHelper.Deserialize<Type[]>(ParameterTypes);
                 var method = GetNonOpenMatchingMethod(type, Method, parameterTypes);
                 
                 if (method == null)
@@ -59,7 +60,7 @@ namespace Hangfire.Storage
                         String.Join(", ", parameterTypes.Select(x => x.Name))));
                 }
 
-                var serializedArguments = JobHelper.FromJson<string[]>(Arguments);
+                var serializedArguments = JobHelper.Deserialize<string[]>(Arguments);
                 var arguments = DeserializeArguments(method, serializedArguments);
 
                 return new Job(type, method, arguments);
@@ -75,8 +76,8 @@ namespace Hangfire.Storage
             return new InvocationData(
                 job.Type.AssemblyQualifiedName,
                 job.Method.Name,
-                JobHelper.ToJson(job.Method.GetParameters().Select(x => x.ParameterType).ToArray()),
-                JobHelper.ToJson(SerializeArguments(job.Args)));
+                JobHelper.Serialize(job.Method.GetParameters().Select(x => x.ParameterType).ToArray()),
+                JobHelper.Serialize(SerializeArguments(job.Args)));
         }
 
         internal static string[] SerializeArguments(IReadOnlyCollection<object> arguments)
@@ -94,7 +95,7 @@ namespace Hangfire.Storage
                     }
                     else
                     {
-                        value = JobHelper.ToJson(argument);
+                        value = JobHelper.Serialize(argument);
                     }
                 }
 
@@ -143,7 +144,7 @@ namespace Hangfire.Storage
             try
             {
                 value = argument != null
-                    ? JobHelper.FromJson(argument, type)
+                    ? JobHelper.Deserialize(argument, type)
                     : null;
             }
             catch (Exception jsonException)

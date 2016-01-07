@@ -76,7 +76,7 @@ namespace Hangfire.Core.Tests.States
             context.SetJobParameter("Name", "Value");
 
             _applyContext.Connection.Verify(x => x.SetJobParameter(
-                _applyContext.BackgroundJob.Id, "Name", JobHelper.ToJson("Value")));
+                _applyContext.BackgroundJob.Id, "Name", JobHelper.Serialize("Value")));
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace Hangfire.Core.Tests.States
             context.SetJobParameter("Name", (string)null);
 
             _applyContext.Connection.Verify(x => x.SetJobParameter(
-                _applyContext.BackgroundJob.Id, "Name", JobHelper.ToJson(null)));
+                _applyContext.BackgroundJob.Id, "Name", JobHelper.Serialize(null)));
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace Hangfire.Core.Tests.States
         {
             var context = CreateContext();
             _applyContext.Connection.Setup(x => x.GetJobParameter(_applyContext.BackgroundJob.Id, "Name"))
-                .Returns(JobHelper.ToJson("Value"));
+                .Returns(JobHelper.Serialize("Value"));
 
             var value = context.GetJobParameter<string>("Name");
 
@@ -107,7 +107,7 @@ namespace Hangfire.Core.Tests.States
         {
             var context = CreateContext();
             _applyContext.Connection.Setup(x => x.GetJobParameter("1", "Value"))
-                .Returns(JobHelper.ToJson(null));
+                .Returns(JobHelper.Serialize(null));
 
             var value = context.GetJobParameter<int>("Name");
 

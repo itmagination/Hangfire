@@ -17,39 +17,38 @@
 using System;
 using System.Globalization;
 using Hangfire.Annotations;
-using Newtonsoft.Json;
 
 namespace Hangfire.Common
 {
     public static class JobHelper
     {
-        private static JsonSerializerSettings _serializerSettings;
+        private static IJobSerializer _jobSerializer = new JsonJobSerializer(null);
 
-        public static void SetSerializerSettings(JsonSerializerSettings setting)
+        public static void SetJobSerializer(IJobSerializer jobSerializer)
         {
-            _serializerSettings = setting;
+            _jobSerializer = jobSerializer;
         }
 
-        public static string ToJson(object value)
+        public static string Serialize(object value)
         {
             return value != null
-                ? JsonConvert.SerializeObject(value, _serializerSettings)
+                ? _jobSerializer.Serialize(value)
                 : null;
         }
 
-        public static T FromJson<T>(string value)
+        public static T Deserialize<T>(string value)
         {
             return value != null
-                ? JsonConvert.DeserializeObject<T>(value, _serializerSettings)
+                ? _jobSerializer.Deserialize<T>(value)
                 : default(T);
         }
 
-        public static object FromJson(string value, [NotNull] Type type)
+        public static object Deserialize(string value, [NotNull] Type type)
         {
             if (type == null) throw new ArgumentNullException("type");
 
             return value != null
-                ? JsonConvert.DeserializeObject(value, type, _serializerSettings)
+                ? _jobSerializer.Deserialize(value, type)
                 : null;
         }
 

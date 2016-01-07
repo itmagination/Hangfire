@@ -139,7 +139,7 @@ namespace Hangfire.SqlServer.Tests
                 Assert.Equal(null, (int?) sqlJob.StateId);
                 Assert.Equal(null, (string) sqlJob.StateName);
 
-                var invocationData = JobHelper.FromJson<InvocationData>((string)sqlJob.InvocationData);
+                var invocationData = JobHelper.Deserialize<InvocationData>((string)sqlJob.InvocationData);
                 invocationData.Arguments = sqlJob.Arguments;
 
                 var job = invocationData.Deserialize();
@@ -193,7 +193,7 @@ select scope_identity() as Id";
                     arrangeSql,
                     new
                     {
-                        invocationData = JobHelper.ToJson(InvocationData.Serialize(job)),
+                        invocationData = JobHelper.Serialize(InvocationData.Serialize(job)),
                         stateName = "Succeeded",
                         arguments = "['Arguments']"
                     }).Single();
@@ -254,7 +254,7 @@ select @JobId as Id;";
 
                 var jobId = (int)sql.Query(
                     arrangeSql,
-                    new { name = "Name", reason = "Reason", @data = JobHelper.ToJson(data) }).Single().Id;
+                    new { name = "Name", reason = "Reason", @data = JobHelper.Serialize(data) }).Single().Id;
 
                 var result = connection.GetStateData(jobId.ToString());
                 Assert.NotNull(result);
@@ -291,7 +291,7 @@ select @JobId as Id;";
 
                 var jobId = (int)sql.Query(
                     arrangeSql,
-                    new { name = "Name", reason = "Reason", @data = JobHelper.ToJson(data) }).Single().Id;
+                    new { name = "Name", reason = "Reason", @data = JobHelper.Serialize(data) }).Single().Id;
 
                 var result = connection.GetStateData(jobId.ToString());
                 Assert.NotNull(result);
@@ -314,7 +314,7 @@ select scope_identity() as Id";
                     arrangeSql,
                     new
                     {
-                        invocationData = JobHelper.ToJson(new InvocationData(null, null, null, null)),
+                        invocationData = JobHelper.Serialize(new InvocationData(null, null, null, null)),
                         stateName = "Succeeded",
                         arguments = "['Arguments']"
                     }).Single();

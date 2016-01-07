@@ -92,7 +92,7 @@ SELECT CAST(SCOPE_IDENTITY() as int)", _storage.GetSchemaName());
                     createJobSql,
                     new
                     {
-                        invocationData = JobHelper.ToJson(invocationData),
+                        invocationData = JobHelper.Serialize(invocationData),
                         arguments = invocationData.Arguments,
                         createdAt = createdAt,
                         expireAt = createdAt.Add(expireIn)
@@ -138,7 +138,7 @@ values (@jobId, @name, @value)", _storage.GetSchemaName());
                 if (jobData == null) return null;
 
                 // TODO: conversion exception could be thrown.
-                var invocationData = JobHelper.FromJson<InvocationData>(jobData.InvocationData);
+                var invocationData = JobHelper.Deserialize<InvocationData>(jobData.InvocationData);
                 invocationData.Arguments = jobData.Arguments;
 
                 Job job = null;
@@ -182,7 +182,7 @@ where j.Id = @jobId", _storage.GetSchemaName());
                 }
 
                 var data = new Dictionary<string, string>(
-                    JobHelper.FromJson<Dictionary<string, string>>(sqlState.Data),
+                    JobHelper.Deserialize<Dictionary<string, string>>(sqlState.Data),
                     StringComparer.OrdinalIgnoreCase);
 
                 return new StateData
@@ -305,7 +305,7 @@ when not matched then insert ([Key], Field, Value) values (Source.[Key], Source.
                     + @"when matched then update set Data = Source.Data, LastHeartbeat = Source.Heartbeat "
                     +
                     @"when not matched then insert (Id, Data, LastHeartbeat) values (Source.Id, Source.Data, Source.Heartbeat);", _storage.GetSchemaName()),
-                    new { id = serverId, data = JobHelper.ToJson(data), heartbeat = DateTime.UtcNow });
+                    new { id = serverId, data = JobHelper.Serialize(data), heartbeat = DateTime.UtcNow });
             });
         }
 

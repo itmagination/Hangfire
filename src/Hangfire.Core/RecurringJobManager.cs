@@ -89,7 +89,7 @@ namespace Hangfire
                 var recurringJob = new Dictionary<string, string>();
                 var invocationData = InvocationData.Serialize(job);
 
-                recurringJob["Job"] = JobHelper.ToJson(invocationData);
+                recurringJob["Job"] = JobHelper.Serialize(invocationData);
                 recurringJob["Cron"] = cronExpression;
                 recurringJob["TimeZoneId"] = timeZone.Id;
                 recurringJob["Queue"] = queue;
@@ -118,8 +118,8 @@ namespace Hangfire
                 {
                     return;
                 }
-                
-                var job = JobHelper.FromJson<InvocationData>(hash["Job"]).Deserialize();
+
+                var job = JobHelper.Deserialize<InvocationData>(hash["Job"]).Deserialize();
                 var state = new EnqueuedState { Reason = "Triggered using recurring job manager" };
 
                 if (hash.ContainsKey("Queue"))

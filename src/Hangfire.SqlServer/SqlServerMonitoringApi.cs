@@ -128,7 +128,7 @@ namespace Hangfire.SqlServer
 
                 foreach (var server in servers)
                 {
-                    var data = JobHelper.FromJson<ServerData>(server.Data);
+                    var data = JobHelper.Deserialize<ServerData>(server.Data);
                     result.Add(new ServerDto
                     {
                         Name = server.Id,
@@ -275,7 +275,7 @@ select * from [{0}].State where JobId = @id order by Id desc", _storage.GetSchem
                                 CreatedAt = x.CreatedAt,
                                 Reason = x.Reason,
                                 Data = new Dictionary<string, string>(
-                                    JobHelper.FromJson<Dictionary<string, string>>(x.Data),
+                                    JobHelper.Deserialize<Dictionary<string, string>>(x.Data),
                                     StringComparer.OrdinalIgnoreCase),
                             })
                             .ToList();
@@ -469,7 +469,7 @@ where j.Id in @jobIds", _storage.GetSchemaName());
 
         private static Job DeserializeJob(string invocationData, string arguments)
         {
-            var data = JobHelper.FromJson<InvocationData>(invocationData);
+            var data = JobHelper.Deserialize<InvocationData>(invocationData);
             data.Arguments = arguments;
 
             try
@@ -514,7 +514,7 @@ select * from (
 
             foreach (var job in jobs)
             {
-                var deserializedData = JobHelper.FromJson<Dictionary<string, string>>(job.StateData);
+                var deserializedData = JobHelper.Deserialize<Dictionary<string, string>>(job.StateData);
                 var stateData = deserializedData != null
                     ? new Dictionary<string, string>(deserializedData, StringComparer.OrdinalIgnoreCase)
                     : null;

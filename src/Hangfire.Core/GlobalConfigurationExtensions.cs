@@ -22,6 +22,7 @@ using Hangfire.Dashboard;
 using Hangfire.Dashboard.Pages;
 using Hangfire.Logging;
 using Hangfire.Logging.LogProviders;
+using Hangfire.UnitOfWork;
 
 namespace Hangfire
 {
@@ -48,6 +49,17 @@ namespace Hangfire
             if (activator == null) throw new ArgumentNullException("activator");
 
             return configuration.Use(activator, x => JobActivator.Current = x);
+        }
+
+        public static IGlobalConfiguration<TUnitOfWorkManager> UseUnitOfWorkManager<TUnitOfWorkManager>(
+            [NotNull] this IGlobalConfiguration configuration,
+            [NotNull] TUnitOfWorkManager unitOfWorkManager)
+            where TUnitOfWorkManager : IUnitOfWorkManager
+        {
+            if (configuration == null) throw new ArgumentNullException("configuration");
+            if (unitOfWorkManager == null) throw new ArgumentNullException("unitOfWorkManager");
+
+            return configuration.Use(unitOfWorkManager, x => UnitOfWorkManager.Current = x);
         }
 
         public static IGlobalConfiguration<TLogProvider> UseLogProvider<TLogProvider>(

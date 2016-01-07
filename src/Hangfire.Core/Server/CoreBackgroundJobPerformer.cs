@@ -15,11 +15,14 @@
 // License along with Hangfire. If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Hangfire.Annotations;
+using Hangfire.Common;
+using Hangfire.UnitOfWork;
 
 namespace Hangfire.Server
 {
@@ -33,11 +36,14 @@ namespace Hangfire.Server
             };
 
         private readonly JobActivator _activator;
+        private readonly IUnitOfWorkManager _unitOfWorkManager;
 
-        public CoreBackgroundJobPerformer([NotNull] JobActivator activator)
+        public CoreBackgroundJobPerformer([NotNull] JobActivator activator,[NotNull] IUnitOfWorkManager unitOfWorkManager)
         {
             if (activator == null) throw new ArgumentNullException("activator");
+            if (unitOfWorkManager == null) throw new ArgumentNullException("unitOfWorkManager");
             _activator = activator;
+            _unitOfWorkManager = unitOfWorkManager;
         }
 
         public object Perform(PerformContext context)
@@ -45,23 +51,76 @@ namespace Hangfire.Server
             using (var scope = _activator.BeginScope())
             {
                 object instance = null;
+                object unitOfWorkContext = null;
+                object result;
 
-                if (!context.BackgroundJob.Job.Method.IsStatic)
+                try
                 {
-                    instance = scope.Resolve(context.BackgroundJob.Job.Type);
-
-                    if (instance == null)
+                    unitOfWorkContext = BeginUnitOfWork(context.BackgroundJob.Job);
+                    if (unitOfWorkContext == null)
                     {
-                        throw new InvalidOperationException(
-                            String.Format("JobActivator returned NULL instance of the '{0}' type.", context.BackgroundJob.Job.Type));
+                        throw new InvalidOperationException("UnitOfWork context object should not be null.");
                     }
+
+                    if (!context.BackgroundJob.Job.Method.IsStatic)
+                    {
+                        instance = scope.Resolve(context.BackgroundJob.Job.Type);
+
+                        if (instance == null)
+                        {
+                            throw new InvalidOperationException(
+                                String.Format("JobActivator returned NULL instance of the '{0}' type.", context.BackgroundJob.Job.Type));
+                        }
+                    }
+
+                    var arguments = SubstituteArguments(context);
+                    result = InvokeMethod(context.BackgroundJob.Job.Method, instance, arguments);
+                }
+                catch (Exception exception)
+                {
+                    EndUnitOfWork(unitOfWorkContext, exception);
+                    throw;
                 }
 
-                var arguments = SubstituteArguments(context);
-                var result = InvokeMethod(context.BackgroundJob.Job.Method, instance, arguments);
+                EndUnitOfWork(unitOfWorkContext);
 
                 return result;
             }
+        }
+
+        private object BeginUnitOfWork([NotNull] Job job)
+        {
+            if (job == null) throw new ArgumentNullException("job");
+
+            try
+            {
+                return _unitOfWorkManager.Begin(GetJobCopy(job));
+            }
+            catch (Exception ex)
+            {
+                throw new JobPerformanceException(
+                    "An exception occurred during begin job unit of work context.",
+                    ex);
+            }
+        }
+
+        private void EndUnitOfWork(object context, Exception exception = null)
+        {
+            try
+            {
+                _unitOfWorkManager.End(context, exception);
+            }
+            catch (Exception ex)
+            {
+                throw new JobPerformanceException(
+                    "An exception occurred during end job unit of work context.",
+                    ex);
+            }
+        }
+
+        private static Job GetJobCopy(Job job)
+        {
+            return new Job(job.Type, job.Method, (object[])job.Args.ToArray().Clone());
         }
 
         private static object InvokeMethod(MethodInfo methodInfo, object instance, object[] arguments)

@@ -23,6 +23,7 @@ using Hangfire.Common;
 using Hangfire.Logging;
 using Hangfire.Server;
 using Hangfire.States;
+using Hangfire.UnitOfWork;
 
 namespace Hangfire
 {
@@ -125,7 +126,8 @@ namespace Hangfire
             var filterProvider = _options.FilterProvider ?? JobFilterProviders.Providers;
 
             var factory = new BackgroundJobFactory(filterProvider);
-            var performer = new BackgroundJobPerformer(filterProvider, _options.Activator ?? JobActivator.Current);
+            var performer = new BackgroundJobPerformer(filterProvider, _options.Activator ?? JobActivator.Current, 
+                _options.UnitOfWorkManager ?? UnitOfWorkManager.Current);
             var stateChanger = new BackgroundJobStateChanger(filterProvider);
             
             for (var i = 0; i < _options.WorkerCount; i++)

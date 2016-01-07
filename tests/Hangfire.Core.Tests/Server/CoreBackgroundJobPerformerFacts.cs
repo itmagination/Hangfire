@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Hangfire.Common;
 using Hangfire.Core.Tests.Common;
 using Hangfire.Server;
+using Hangfire.UnitOfWork;
 using Moq;
 using Xunit;
 
@@ -12,6 +14,7 @@ namespace Hangfire.Core.Tests.Server
     public class CoreBackgroundJobPerformerFacts : IDisposable
     {
         private readonly Mock<JobActivator> _activator;
+        private readonly Mock<IUnitOfWorkManager> _unitOfWorkManager;
         private readonly PerformContextMock _context;
 
         private static readonly DateTime SomeDateTime = new DateTime(2014, 5, 30, 12, 0, 0);
@@ -21,6 +24,10 @@ namespace Hangfire.Core.Tests.Server
         public CoreBackgroundJobPerformerFacts()
         {
             _activator = new Mock<JobActivator>() { CallBase = true };
+            
+            _unitOfWorkManager = new Mock<IUnitOfWorkManager>();
+            _unitOfWorkManager.Setup(x => x.Begin(It.IsNotNull<Job>())).Returns(() => new object());
+            
             _context = new PerformContextMock();
         }
 
@@ -29,9 +36,155 @@ namespace Hangfire.Core.Tests.Server
         {
             var exception = Assert.Throws<ArgumentNullException>(
                 // ReSharper disable once AssignNullToNotNullAttribute
-                () => new CoreBackgroundJobPerformer(null));
+                () => new CoreBackgroundJobPerformer(null, _unitOfWorkManager.Object));
 
             Assert.Equal("activator", exception.ParamName);
+        }
+
+        [Fact]
+        public void Ctor_ThrowsAnException_WhenUnitOfWorkManagerIsNull()
+        {
+            var exception = Assert.Throws<ArgumentNullException>(
+                // ReSharper disable once AssignNullToNotNullAttribute
+                () => new CoreBackgroundJobPerformer(_activator.Object, null));
+
+            Assert.Equal("unitOfWorkManager", exception.ParamName);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_BeginWasCalledExactlyOnce()
+        {
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticMethod());
+
+            var performer = CreatePerformer();
+            performer.Perform(_context.Object);
+
+            _unitOfWorkManager.Verify(x => x.Begin(It.IsNotNull<Job>()), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_BeginWasCalledExactlyOnceAndJobArgumentWasNotNull()
+        {
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticMethod());
+
+            var performer = CreatePerformer();
+            performer.Perform(_context.Object);
+
+            _unitOfWorkManager.Verify(x => x.Begin(It.Is<Job>(jobArg => jobArg != null)), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_BeginWasCalledExactlyOnceAndJobArgumentHasExpectedValues()
+        {
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticMethod());
+
+            var performer = CreatePerformer();
+            performer.Perform(_context.Object);
+
+            _unitOfWorkManager.Verify(x => x.Begin(It.Is<Job>(jobArg =>
+                                                              (jobArg != null) &&
+                                                              (jobArg.Type == _context.BackgroundJob.Job.Type) &&
+                                                              (jobArg.Method == _context.BackgroundJob.Job.Method) &&
+                                                              (_context.BackgroundJob.Job.Args != null) &&
+                                                              (jobArg.Args.SequenceEqual(_context.BackgroundJob.Job.Args))
+                                                       )), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_EndWasCalledExactlyOnce()
+        {
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticMethod());
+
+            var performer = CreatePerformer();
+            performer.Perform(_context.Object);
+
+            _unitOfWorkManager.Verify(x => x.End(It.IsNotNull<object>(), It.IsAny<Exception>()), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_EndWasCalledExactlyOnceWithNullExceptionArgumentIfEverythingWasOK()
+        {
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticMethod());
+
+            var performer = CreatePerformer();
+            performer.Perform(_context.Object);
+
+            _unitOfWorkManager.Verify(x => x.End(It.IsNotNull<object>(), It.Is<Exception>(exception => exception == null)), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_EndWasCalledExactlyOnceWithNullUnitOfWorkContextArgumentAndNotNullExceptionArgumentIfExceptionWasThrownFromBeginMethod()
+        {
+            var exception = new InvalidOperationException();
+            _unitOfWorkManager.Setup(x => x.Begin(It.IsNotNull<Job>())).Throws(exception);
+
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticMethod());
+
+            var performer = CreatePerformer();
+            var thrownException = Assert.Throws<JobPerformanceException>(
+                () => performer.Perform(_context.Object));
+
+            _unitOfWorkManager.Verify(x => x.End(It.Is<object>(unitOfWorkContext => unitOfWorkContext == null), 
+                It.Is<Exception>(ex => exception == thrownException.InnerException && ex == thrownException)), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_EndMethodRecivesUnitOfWorkContextCreatedByBeginMethodIfNoExceptionWasThrownDuringExecution()
+        {
+            var unitOfWorkContextObject = new object();
+            _unitOfWorkManager.Setup(x => x.Begin(It.IsNotNull<Job>())).Returns(unitOfWorkContextObject);
+
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticMethod());
+
+            var performer = CreatePerformer();
+            performer.Perform(_context.Object);
+
+            _unitOfWorkManager.Verify(x => x.End(It.Is<object>(unitOfWorkContext => Object.ReferenceEquals(unitOfWorkContext, unitOfWorkContextObject)), It.Is<Exception>(ex => ex == null)), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_EndMethodRecivesUnitOfWorkContextCreatedByBeginMethodIfExceptionWasThrownDuringExecution()
+        {
+            var unitOfWorkContextObject = new object();
+            _unitOfWorkManager.Setup(x => x.Begin(It.IsNotNull<Job>())).Returns(unitOfWorkContextObject);
+
+            var exception = new InvalidOperationException();
+
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticThrowExceptionMethod(exception));
+
+            var performer = CreatePerformer();
+            var thrownException = Assert.Throws<JobPerformanceException>(
+                () => performer.Perform(_context.Object));
+
+            _unitOfWorkManager.Verify(x => x.End(It.Is<object>(unitOfWorkContext => Object.ReferenceEquals(unitOfWorkContext, unitOfWorkContextObject)), 
+                It.Is<Exception>(ex => thrownException.InnerException == exception && ex == thrownException)), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_UnitOfWorkManager_EndWasCalledExactlyOnceWithNotNullNullExceptionArgumentIfExceptionWasThrownFromActivator()
+        {
+            var exception = new InvalidOperationException();
+            _activator.Setup(x => x.ActivateJob(It.IsAny<Type>())).Throws(exception);
+
+            _context.BackgroundJob.Job = Job.FromExpression<CoreBackgroundJobPerformerFacts>(x => x.InstanceMethod());
+
+            var performer = CreatePerformer();
+            var thrownException = Assert.Throws<InvalidOperationException>(
+                () => performer.Perform(_context.Object));
+
+            _unitOfWorkManager.Verify(x => x.End(It.IsNotNull<object>(), It.Is<Exception>(ex => exception == thrownException && ex == thrownException)), Times.Once);
+        }
+
+        [Fact, StaticLock]
+        public void Run_ThrowsInvalidOperationException_WhenUnitOfWorkBeginMethodReturnsNull()
+        {
+            _unitOfWorkManager.Setup(x => x.Begin(It.IsNotNull<Job>())).Returns(null);
+
+            _context.BackgroundJob.Job = Job.FromExpression(() => StaticMethod());
+
+            var performer = CreatePerformer();
+            Assert.Throws<InvalidOperationException>(
+                () => performer.Perform(_context.Object));
         }
 
         [Fact, StaticLock]
@@ -169,6 +322,40 @@ namespace Hangfire.Core.Tests.Server
             // Act
             Assert.Throws<InvalidOperationException>(
                 () => performer.Perform(_context.Object));
+        }
+
+        [Fact]
+        public void Run_ThrowsJobPerformanceException_WhenUnitOfWorkManagerBeginThrowsAnException()
+        {
+            // Arrange
+            var exception = new InvalidOperationException();
+            _unitOfWorkManager.Setup(x => x.Begin(It.IsNotNull<Job>())).Throws(exception);
+
+            _context.BackgroundJob.Job = Job.FromExpression(() => InstanceMethod());
+            var performer = CreatePerformer();
+
+            // Act
+            var thrownException = Assert.Throws<JobPerformanceException>(
+                () => performer.Perform(_context.Object));
+
+            Assert.Same(exception, thrownException.InnerException);
+        }
+
+        [Fact]
+        public void Run_ThrowsJobPerformanceException_WhenUnitOfWorkManagerEndThrowsAnException()
+        {
+            // Arrange
+            var exception = new InvalidOperationException();
+            _unitOfWorkManager.Setup(x => x.End(It.IsNotNull<object>(), It.IsAny<Exception>())).Throws(exception);
+
+            _context.BackgroundJob.Job = Job.FromExpression(() => InstanceMethod());
+            var performer = CreatePerformer();
+
+            // Act
+            var thrownException = Assert.Throws<JobPerformanceException>(
+                () => performer.Perform(_context.Object));
+
+            Assert.Same(exception, thrownException.InnerException);
         }
 
         [Fact]
@@ -317,6 +504,12 @@ namespace Hangfire.Core.Tests.Server
             _methodInvoked = true;
         }
 
+        public static void StaticThrowExceptionMethod(Exception exception)
+        {
+            _methodInvoked = true;
+            throw exception;
+        }
+
         public void MethodWithArguments(string stringArg, int intArg)
         {
             _methodInvoked = true;
@@ -337,7 +530,7 @@ namespace Hangfire.Core.Tests.Server
 
         private CoreBackgroundJobPerformer CreatePerformer()
         {
-            return new CoreBackgroundJobPerformer(_activator.Object);
+            return new CoreBackgroundJobPerformer(_activator.Object, _unitOfWorkManager.Object);
         }
     }
 }

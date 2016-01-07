@@ -19,6 +19,7 @@ using Hangfire.Annotations;
 using Hangfire.Common;
 using Hangfire.Server;
 using Hangfire.States;
+using Hangfire.UnitOfWork;
 
 namespace Hangfire
 {
@@ -42,6 +43,7 @@ namespace Hangfire
             
             FilterProvider = null;
             Activator = null;
+            UnitOfWorkManager = null;
         }
 
         [Obsolete("Server Id is auto-generated now, and this option does not make sense anymore. Will be removed in 2.0.0.")]
@@ -84,5 +86,8 @@ namespace Hangfire
 
         [CanBeNull]
         public JobActivator Activator { get; set; }
+
+        [CanBeNull]
+        public IUnitOfWorkManager UnitOfWorkManager { get; set; }
     }
 }

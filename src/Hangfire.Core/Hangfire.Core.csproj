@@ -413,6 +413,8 @@
     <Compile Include="Storage\RecurringJobDto.cs" />
     <Compile Include="Storage\StateData.cs" />
     <Compile Include="Storage\StorageConnectionExtensions.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkManager.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Dashboard\Content\fonts\glyphicons-halflings-regular.eot" />

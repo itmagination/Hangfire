@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Hangfire.Annotations;
 using Hangfire.Common;
+using Hangfire.UnitOfWork;
 
 namespace Hangfire.Server
 {
@@ -33,14 +34,15 @@ namespace Hangfire.Server
         }
 
         public BackgroundJobPerformer([NotNull] IJobFilterProvider filterProvider)
-            : this(filterProvider, JobActivator.Current)
+            : this(filterProvider, JobActivator.Current, UnitOfWorkManager.Current)
         {
         }
 
         public BackgroundJobPerformer(
             [NotNull] IJobFilterProvider filterProvider,
-            [NotNull] JobActivator activator)
-            : this(filterProvider, new CoreBackgroundJobPerformer(activator))
+            [NotNull] JobActivator activator,
+            [NotNull] IUnitOfWorkManager unitOfWorkManager)
+            : this(filterProvider, new CoreBackgroundJobPerformer(activator, unitOfWorkManager))
         {
         }
 

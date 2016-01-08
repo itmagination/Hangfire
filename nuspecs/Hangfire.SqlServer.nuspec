@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire.SqlServer</id>
-    <version>0.0.0</version>
+    <version>1.5.3.5000</version>
     <title>Hangfire SQL Server Storage</title>
     <authors>Sergey Odinokov</authors>
     <owners>odinserj</owners>
@@ -31,7 +31,7 @@
 * Changed – `JobQueue.Queue` and `Server.Id` column length increased to 50 and 100 respectively (by @maleet).
     </releaseNotes>
     <dependencies>
-      <dependency id="Hangfire.Core" version="[0.0.0]" />
+      <dependency id="Hangfire.Core" version="1.5.3.5000" />
     </dependencies>
   </metadata>
   <files>

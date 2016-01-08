@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire.Core</id>
-    <version>0.0.0</version>
+    <version>1.5.3.5000</version>
     <title>Hangfire Core Components</title>
     <authors>Sergey Odinokov</authors>
     <owners>odinserj</owners>

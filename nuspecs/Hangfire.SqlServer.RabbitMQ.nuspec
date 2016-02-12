@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire.SqlServer.RabbitMQ</id>
-    <version>1.5.3.5000</version>
+    <version>1.5.3.5001</version>
     <title>Hangfire RabbitMQ Queues for SQL Server Storage</title>
     <authors>Denny Ferrassoli</authors>
     <owners>dennyferra</owners>

@@ -23,6 +23,7 @@ using Hangfire.Common;
 using Hangfire.Dashboard;
 using Hangfire.Server;
 using Hangfire.States;
+using Hangfire.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -56,7 +57,8 @@ namespace Hangfire
 
             services.TryAddSingleton<IBackgroundJobPerformer>(x => new BackgroundJobPerformer(
                 x.GetRequiredService<IJobFilterProvider>(),
-                x.GetRequiredService<JobActivator>()));
+                x.GetRequiredService<JobActivator>(),
+                x.GetRequiredService<IUnitOfWorkManager>()));
 
             services.TryAddSingleton<IBackgroundJobClient>(x => new BackgroundJobClient(
                 x.GetRequiredService<JobStorage>(),

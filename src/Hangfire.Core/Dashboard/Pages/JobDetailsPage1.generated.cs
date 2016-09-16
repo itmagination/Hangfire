@@ -82,8 +82,6 @@ namespace Hangfire.Dashboard.Pages
         {
 
 
-WriteLiteral("\r\n");
-
 
 
 
@@ -117,7 +115,7 @@ WriteLiteral("\r\n");
             
             #line default
             #line hidden
-WriteLiteral("\r\n<div class=\"row\">\r\n    <div class=\"col-md-3\">\r\n        ");
+WriteLiteral("\r\n<div class=\"row\">\r\n <div class=\"col-md-3\">\r\n ");
 
 
             
@@ -127,7 +125,7 @@ WriteLiteral("\r\n<div class=\"row\">\r\n    <div class=\"col-md-3\">\r\n       
             
             #line default
             #line hidden
-WriteLiteral("\r\n    </div>\r\n    <div class=\"col-md-9\">\r\n        <h1 class=\"page-header\">");
+WriteLiteral("\r\n </div>\r\n <div class=\"col-md-9\">\r\n <h1 class=\"page-header\">");
 
 
             
@@ -137,7 +135,7 @@ WriteLiteral("\r\n    </div>\r\n    <div class=\"col-md-9\">\r\n        <h1 clas
             
             #line default
             #line hidden
-WriteLiteral("</h1>\r\n\r\n");
+WriteLiteral("</h1>\r\n");
 
 
             
@@ -148,7 +146,7 @@ WriteLiteral("</h1>\r\n\r\n");
             
             #line default
             #line hidden
-WriteLiteral("            <div class=\"alert alert-warning\">\r\n                ");
+WriteLiteral(" <div class=\"alert alert-warning\">\r\n ");
 
 
             
@@ -158,7 +156,7 @@ WriteLiteral("            <div class=\"alert alert-warning\">\r\n               
             
             #line default
             #line hidden
-WriteLiteral("\r\n            </div>\r\n");
+WriteLiteral("\r\n </div>\r\n");
 
 
             
@@ -176,7 +174,7 @@ WriteLiteral("\r\n            </div>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                    <div class=\"alert alert-danger\">\r\n                        ");
+WriteLiteral(" <div class=\"alert alert-danger\">\r\n ");
 
 
             
@@ -186,7 +184,7 @@ WriteLiteral("                    <div class=\"alert alert-danger\">\r\n        
             
             #line default
             #line hidden
-WriteLiteral("\r\n                    </div>\r\n");
+WriteLiteral("\r\n </div>\r\n");
 
 
             
@@ -198,7 +196,7 @@ WriteLiteral("\r\n                    </div>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                    <div class=\"alert alert-warning\">\r\n                        ");
+WriteLiteral(" <div class=\"alert alert-warning\">\r\n ");
 
 
             
@@ -208,7 +206,7 @@ WriteLiteral("                    <div class=\"alert alert-warning\">\r\n       
             
             #line default
             #line hidden
-WriteLiteral("\r\n                    </div>\r\n");
+WriteLiteral("\r\n </div>\r\n");
 
 
             
@@ -222,7 +220,7 @@ WriteLiteral("\r\n                    </div>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                <div class=\"alert alert-info\">\r\n                    ");
+WriteLiteral(" <div class=\"alert alert-info\">\r\n ");
 
 
             
@@ -232,7 +230,7 @@ WriteLiteral("                <div class=\"alert alert-info\">\r\n              
             
             #line default
             #line hidden
-WriteLiteral("\r\n                </div>\r\n");
+WriteLiteral("\r\n </div>\r\n");
 
 
             
@@ -243,8 +241,7 @@ WriteLiteral("\r\n                </div>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("            <div class=\"job-snippet\">\r\n                <div class=\"job-snippet-co" +
-"de\">\r\n                    <pre><code><span class=\"comment\">// ");
+WriteLiteral(" <div class=\"job-snippet\">\r\n <div class=\"job-snippet-co" + "de\">\r\n <pre><code><span class=\"comment\">// ");
 
 
             
@@ -274,7 +271,7 @@ Write(JobMethodCallRenderer.Render(job.Job));
             
             #line default
             #line hidden
-WriteLiteral("\r\n</code></pre>\r\n                </div>\r\n\r\n");
+WriteLiteral("\r\n</code></pre>\r\n </div>\r\n");
 
 
             
@@ -285,8 +282,7 @@ WriteLiteral("\r\n</code></pre>\r\n                </div>\r\n\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                    <div class=\"job-snippet-properties\">\r\n                       " +
-" <dl>\r\n");
+WriteLiteral(" <div class=\"job-snippet-properties\">\r\n " + " <dl>\r\n");
 
 
             
@@ -297,7 +293,7 @@ WriteLiteral("                    <div class=\"job-snippet-properties\">\r\n    
             
             #line default
             #line hidden
-WriteLiteral("                                <dt>");
+WriteLiteral(" <dt>");
 
 
             
@@ -311,7 +307,7 @@ WriteLiteral("</dt>\r\n");
 
 
 
-WriteLiteral("                                <dd><pre><code>");
+WriteLiteral(" <dd><pre><code>");
 
 
             
@@ -331,7 +327,7 @@ WriteLiteral("</code></pre></dd>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                        </dl>\r\n                    </div>\r\n");
+WriteLiteral(" </dl>\r\n </div>\r\n");
 
 
             
@@ -341,7 +337,7 @@ WriteLiteral("                        </dl>\r\n                    </div>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("            </div>\r\n");
+WriteLiteral(" </div>\r\n");
 
 
             
@@ -353,7 +349,7 @@ WriteLiteral("            </div>\r\n");
 
                 using (var connection = Storage.GetConnection())
                 {
-                    continuations = JobHelper.FromJson<List<Continuation>>(connection.GetJobParameter(
+                    continuations = JobHelper.Deserialize<List<Continuation>>(connection.GetJobParameter(
                         JobId, "Continuations")) ?? new List<Continuation>();
                 }
 
@@ -363,7 +359,7 @@ WriteLiteral("            </div>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                    <h3>");
+WriteLiteral(" <h3>");
 
 
             
@@ -377,9 +373,7 @@ WriteLiteral("</h3>\r\n");
 
 
 
-WriteLiteral("                    <div class=\"table-responsive\">\r\n                        <tabl" +
-"e class=\"table\">\r\n                            <thead>\r\n                         " +
-"   <tr>\r\n                                <th class=\"min-width\">");
+WriteLiteral(" <div class=\"table-responsive\">\r\n <tabl" + "e class=\"table\">\r\n <thead>\r\n " + " <tr>\r\n <th class=\"min-width\">");
 
 
             
@@ -389,7 +383,7 @@ WriteLiteral("                    <div class=\"table-responsive\">\r\n          
             
             #line default
             #line hidden
-WriteLiteral("</th>\r\n                                <th class=\"min-width\">");
+WriteLiteral("</th>\r\n <th class=\"min-width\">");
 
 
             
@@ -399,7 +393,7 @@ WriteLiteral("</th>\r\n                                <th class=\"min-width\">"
             
             #line default
             #line hidden
-WriteLiteral("</th>\r\n                                <th class=\"min-width\">");
+WriteLiteral("</th>\r\n <th class=\"min-width\">");
 
 
             
@@ -409,7 +403,7 @@ WriteLiteral("</th>\r\n                                <th class=\"min-width\">"
             
             #line default
             #line hidden
-WriteLiteral("</th>\r\n                                <th>");
+WriteLiteral("</th>\r\n <th>");
 
 
             
@@ -419,7 +413,7 @@ WriteLiteral("</th>\r\n                                <th>");
             
             #line default
             #line hidden
-WriteLiteral("</th>\r\n                                <th class=\"align-right\">");
+WriteLiteral("</th>\r\n <th class=\"align-right\">");
 
 
             
@@ -429,8 +423,7 @@ WriteLiteral("</th>\r\n                                <th class=\"align-right\"
             
             #line default
             #line hidden
-WriteLiteral("</th>\r\n                            </tr>\r\n                            </thead>\r\n " +
-"                           <tbody>\r\n");
+WriteLiteral("</th>\r\n </tr>\r\n </thead>\r\n " + " <tbody>\r\n");
 
 
             
@@ -448,7 +441,7 @@ WriteLiteral("</th>\r\n                            </tr>\r\n                    
             
             #line default
             #line hidden
-WriteLiteral("                                <tr>\r\n");
+WriteLiteral(" <tr>\r\n");
 
 
             
@@ -459,7 +452,7 @@ WriteLiteral("                                <tr>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                                        <td colspan=\"5\"><em>");
+WriteLiteral(" <td colspan=\"5\"><em>");
 
 
             
@@ -481,7 +474,7 @@ WriteLiteral("</em></td>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                                        <td class=\"min-width\">");
+WriteLiteral(" <td class=\"min-width\">");
 
 
             
@@ -495,7 +488,7 @@ WriteLiteral("</td>\r\n");
 
 
 
-WriteLiteral("                                        <td class=\"min-width\"><code>");
+WriteLiteral(" <td class=\"min-width\"><code>");
 
 
             
@@ -509,7 +502,7 @@ WriteLiteral("</code></td>\r\n");
 
 
 
-WriteLiteral("                                        <td class=\"min-width\">");
+WriteLiteral(" <td class=\"min-width\">");
 
 
             
@@ -523,7 +516,7 @@ WriteLiteral("</td>\r\n");
 
 
 
-WriteLiteral("                                        <td class=\"word-break\">");
+WriteLiteral(" <td class=\"word-break\">");
 
 
             
@@ -537,7 +530,7 @@ WriteLiteral("</td>\r\n");
 
 
 
-WriteLiteral("                                        <td class=\"align-right\">");
+WriteLiteral(" <td class=\"align-right\">");
 
 
             
@@ -557,7 +550,7 @@ WriteLiteral("</td>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                                </tr>\r\n");
+WriteLiteral(" </tr>\r\n");
 
 
             
@@ -567,8 +560,7 @@ WriteLiteral("                                </tr>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                            </tbody>\r\n                        </table>\r\n         " +
-"           </div>\r\n");
+WriteLiteral(" </tbody>\r\n </table>\r\n " + " </div>\r\n");
 
 
             
@@ -580,7 +572,7 @@ WriteLiteral("                            </tbody>\r\n                        </
             
             #line default
             #line hidden
-WriteLiteral("            <h3>\r\n");
+WriteLiteral(" <h3>\r\n");
 
 
             
@@ -591,8 +583,7 @@ WriteLiteral("            <h3>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                    <span class=\"job-snippet-buttons pull-right\">\r\n              " +
-"          <button class=\"btn btn-sm btn-default\" data-ajax=\"");
+WriteLiteral(" <span class=\"job-snippet-buttons pull-right\">\r\n " + " <button class=\"btn btn-sm btn-default\" data-ajax=\"");
 
 
             
@@ -622,8 +613,7 @@ WriteLiteral("\">");
             
             #line default
             #line hidden
-WriteLiteral("</button>\r\n                        <button class=\"btn btn-sm btn-death\" data-ajax" +
-"=\"");
+WriteLiteral("</button>\r\n <button class=\"btn btn-sm btn-death\" data-ajax" + "=\"");
 
 
             
@@ -663,7 +653,7 @@ WriteLiteral("\">");
             
             #line default
             #line hidden
-WriteLiteral("</button>\r\n                    </span>\r\n");
+WriteLiteral("</button>\r\n </span>\r\n");
 
 
             
@@ -673,7 +663,7 @@ WriteLiteral("</button>\r\n                    </span>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("\r\n                ");
+WriteLiteral("\r\n ");
 
 
             
@@ -683,7 +673,7 @@ WriteLiteral("\r\n                ");
             
             #line default
             #line hidden
-WriteLiteral("\r\n            </h3>\r\n");
+WriteLiteral("\r\n </h3>\r\n");
 
 
             
@@ -700,7 +690,7 @@ WriteLiteral("\r\n            </h3>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                <div class=\"state-card\" style=\"");
+WriteLiteral(" <div class=\"state-card\" style=\"");
 
 
             
@@ -710,7 +700,7 @@ WriteLiteral("                <div class=\"state-card\" style=\"");
             
             #line default
             #line hidden
-WriteLiteral("\">\r\n                    <h4 class=\"state-card-title\" style=\"");
+WriteLiteral("\">\r\n <h4 class=\"state-card-title\" style=\"");
 
 
             
@@ -720,7 +710,7 @@ WriteLiteral("\">\r\n                    <h4 class=\"state-card-title\" style=\"
             
             #line default
             #line hidden
-WriteLiteral("\">\r\n                        <small class=\"pull-right text-muted\">\r\n");
+WriteLiteral("\">\r\n <small class=\"pull-right text-muted\">\r\n");
 
 
             
@@ -752,8 +742,6 @@ WriteLiteral("\">\r\n                        <small class=\"pull-right text-mute
             
             #line default
             #line hidden
-WriteLiteral("                                    ");
-
 WriteLiteral(" ");
 
 
@@ -786,8 +774,6 @@ WriteLiteral(")\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                                    ");
-
 WriteLiteral(" ");
 
 
@@ -798,8 +784,6 @@ WriteLiteral(" ");
             
             #line default
             #line hidden
-WriteLiteral("\r\n");
-
 
             
             #line 182 "..\..\Dashboard\Pages\JobDetailsPage.cshtml"
@@ -809,7 +793,7 @@ WriteLiteral("\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                        </small>\r\n\r\n                        ");
+WriteLiteral(" </small>\r\n ");
 
 
             
@@ -819,7 +803,7 @@ WriteLiteral("                        </small>\r\n\r\n                        ")
             
             #line default
             #line hidden
-WriteLiteral("\r\n                    </h4>\r\n\r\n");
+WriteLiteral("\r\n </h4>\r\n");
 
 
             
@@ -830,7 +814,7 @@ WriteLiteral("\r\n                    </h4>\r\n\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                        <p class=\"state-card-text text-muted\">");
+WriteLiteral(" <p class=\"state-card-text text-muted\">");
 
 
             
@@ -850,8 +834,6 @@ WriteLiteral("</p>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("\r\n");
-
 
             
             #line 194 "..\..\Dashboard\Pages\JobDetailsPage.cshtml"
@@ -862,8 +844,6 @@ WriteLiteral("\r\n");
             
             #line default
             #line hidden
-WriteLiteral("\r\n");
-
 
             
             #line 198 "..\..\Dashboard\Pages\JobDetailsPage.cshtml"
@@ -873,7 +853,7 @@ WriteLiteral("\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                        <div class=\"state-card-body\" style=\"");
+WriteLiteral(" <div class=\"state-card-body\" style=\"");
 
 
             
@@ -883,7 +863,7 @@ WriteLiteral("                        <div class=\"state-card-body\" style=\"");
             
             #line default
             #line hidden
-WriteLiteral("\">\r\n                            ");
+WriteLiteral("\">\r\n ");
 
 
             
@@ -893,7 +873,7 @@ WriteLiteral("\">\r\n                            ");
             
             #line default
             #line hidden
-WriteLiteral("\r\n                        </div>\r\n");
+WriteLiteral("\r\n </div>\r\n");
 
 
             
@@ -903,7 +883,7 @@ WriteLiteral("\r\n                        </div>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("                </div>\r\n");
+WriteLiteral(" </div>\r\n");
 
 
             
@@ -916,7 +896,7 @@ WriteLiteral("                </div>\r\n");
             
             #line default
             #line hidden
-WriteLiteral("    </div>\r\n</div>");
+WriteLiteral(" </div>\r\n</div>");
 
 
         }

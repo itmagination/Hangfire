@@ -521,7 +521,7 @@ $@"select * from (
                 
                 if (job.InvocationData != null)
                 {
-                    var deserializedData = JobHelper.FromJson<Dictionary<string, string>>(job.StateData);
+                    var deserializedData = JobHelper.Deserialize<Dictionary<string, string>>(job.StateData);
                     var stateData = deserializedData != null
                         ? new Dictionary<string, string>(deserializedData, StringComparer.OrdinalIgnoreCase)
                         : null;

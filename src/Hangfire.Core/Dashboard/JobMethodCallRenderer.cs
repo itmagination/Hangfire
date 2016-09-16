@@ -118,7 +118,7 @@ namespace Hangfire.Dashboard
                     if (enumerableArgument == null || argumentValue == null)
                     {
                         var argumentRenderer = ArgumentRenderer.GetRenderer(parameter.ParameterType);
-                        renderedArgument = argumentRenderer.Render(isJson, argumentValue?.ToString(), argument);
+                        renderedArgument = argumentRenderer.Render(argumentValue?.ToString(), argument);
                     }
                     else
                     {
@@ -128,8 +128,8 @@ namespace Hangfire.Dashboard
                         foreach (var item in (IEnumerable)argumentValue)
                         {
                             var argumentRenderer = ArgumentRenderer.GetRenderer(enumerableArgument);
-                            renderedItems.Add(argumentRenderer.Render(isJson, item.ToString(),
-                                JobHelper.ToJson(item)));
+                            renderedItems.Add(argumentRenderer.Render(item.ToString(),
+                                JobHelper.Serialize(item)));
                         }
 
                         // ReSharper disable once UseStringInterpolation

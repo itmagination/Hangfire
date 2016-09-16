@@ -65,10 +65,10 @@ namespace Hangfire.Server
                         throw new InvalidOperationException("UnitOfWork context object should not be null.");
                     }
 
-                if (context.BackgroundJob.Job == null)
-                {
-                    throw new InvalidOperationException("Can't perform a background job with a null job.");
-                }
+                    if (context.BackgroundJob.Job == null)
+                    {
+                        throw new InvalidOperationException("Can't perform a background job with a null job.");
+                    }
                 
                     if (!context.BackgroundJob.Job.Method.IsStatic)
                     {
@@ -82,7 +82,7 @@ namespace Hangfire.Server
                     }
 
                     var arguments = SubstituteArguments(context);
-                    result = InvokeMethod(context.BackgroundJob.Job.Method, instance, arguments);
+                    result = InvokeMethod(context, instance, arguments);
                 }
                 catch (Exception exception)
                 {

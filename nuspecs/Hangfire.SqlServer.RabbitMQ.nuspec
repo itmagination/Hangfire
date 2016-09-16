@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire.SqlServer.RabbitMQ</id>
-    <version>1.5.3.5002</version>
+	<version>1.6.4.5000</version>
     <title>Hangfire RabbitMQ Queues for SQL Server Storage</title>
     <authors>Denny Ferrassoli</authors>
     <owners>dennyferra</owners>
@@ -21,8 +21,8 @@
 * Added – Allow a URI to be used for `RabbitMQConnectionConfiguration` (by @dennyferra).
     </releaseNotes>
     <dependencies>
-      <dependency id="Hangfire.Core" version="1.5.3.5000" />
-      <dependency id="Hangfire.SqlServer" version="1.5.3.5000" />
+      <dependency id="Hangfire.Core" version="1.6.4.5000" />
+      <dependency id="Hangfire.SqlServer" version="1.6.4.5000" />
       <dependency id="RabbitMQ.Client" version="3.3.0" />
     </dependencies>
   </metadata>

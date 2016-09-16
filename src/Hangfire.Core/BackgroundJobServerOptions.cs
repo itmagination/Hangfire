@@ -45,8 +45,7 @@ namespace Hangfire
             Activator = null;
             UnitOfWorkManager = null;
         }
-
-        [Obsolete("Server Id is auto-generated now, and this option does not make sense anymore. Will be removed in 2.0.0.")]
+        
         public string ServerName { get; set; }
 
         public int WorkerCount
@@ -54,7 +53,7 @@ namespace Hangfire
             get { return _workerCount; }
             set
             {
-                if (value <= 0) throw new ArgumentOutOfRangeException("value", "WorkerCount property value should be positive.");
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), "WorkerCount property value should be positive.");
 
                 _workerCount = value;
             }
@@ -65,8 +64,8 @@ namespace Hangfire
             get { return _queues; }
             set
             {
-                if (value == null) throw new ArgumentNullException("value");
-                if (value.Length == 0) throw new ArgumentException("You should specify at least one queue to listen.", "value");
+                if (value == null) throw new ArgumentNullException(nameof(value));
+                if (value.Length == 0) throw new ArgumentException("You should specify at least one queue to listen.", nameof(value));
 
                 _queues = value;
             }

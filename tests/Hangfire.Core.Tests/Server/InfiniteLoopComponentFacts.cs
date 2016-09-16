@@ -4,6 +4,10 @@ using Hangfire.Server;
 using Moq;
 using Xunit;
 
+// ReSharper disable AssignNullToNotNullAttribute
+
+#pragma warning disable 618
+
 namespace Hangfire.Core.Tests.Server
 {
     public class InfiniteLoopComponentFacts
@@ -37,8 +41,13 @@ namespace Hangfire.Core.Tests.Server
         public void Execute_CallsTheExecuteMethod_OfAComponent_UntilCancellationToken_IsCanceled()
         {
             // Arrange
+            var timesExecuted = 0;
+
             _innerComponent.Setup(x => x.Execute(It.IsAny<CancellationToken>()))
-                  .Callback(() => { Thread.Sleep(5); });
+                .Callback(() =>
+                {
+                    if (timesExecuted++ > 5) _context.CancellationTokenSource.Cancel();
+                });
 
             var process = CreateProcess(_innerComponent.Object);
             _context.CancellationTokenSource.CancelAfter(TimeSpan.FromMilliseconds(100));

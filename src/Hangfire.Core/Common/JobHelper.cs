@@ -45,7 +45,7 @@ namespace Hangfire.Common
 
         public static object Deserialize(string value, [NotNull] Type type)
         {
-            if (type == null) throw new ArgumentNullException("type");
+            if (type == null) throw new ArgumentNullException(nameof(type));
 
             return value != null
                 ? _jobSerializer.Deserialize(value, type)

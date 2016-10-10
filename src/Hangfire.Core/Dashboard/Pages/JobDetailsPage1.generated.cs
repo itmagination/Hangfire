@@ -345,12 +345,12 @@ WriteLiteral(" </div>\r\n");
 
             if (job.Properties.ContainsKey("Continuations"))
             {
-                List<Continuation> continuations;
+                List<Hangfire.ContinuationsSupportAttribute.Continuation> continuations;
 
                 using (var connection = Storage.GetConnection())
                 {
-                    continuations = JobHelper.Deserialize<List<Continuation>>(connection.GetJobParameter(
-                        JobId, "Continuations")) ?? new List<Continuation>();
+                    continuations = JobHelper.Deserialize<List<Hangfire.ContinuationsSupportAttribute.Continuation>>(connection.GetJobParameter(
+                        JobId, "Continuations")) ?? new List<Hangfire.ContinuationsSupportAttribute.Continuation>();
                 }
 
                 if (continuations.Count > 0)

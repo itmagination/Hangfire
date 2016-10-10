@@ -242,7 +242,7 @@ namespace Hangfire
         }
 
         [Serializable]
-        private struct Continuation
+        internal struct Continuation
         {
             public string JobId { get; set; }
             public JobContinuationOptions Options { get; set; }

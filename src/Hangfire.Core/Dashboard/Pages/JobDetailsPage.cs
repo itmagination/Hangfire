@@ -10,11 +10,5 @@ namespace Hangfire.Dashboard.Pages
         }
 
         public string JobId { get; }
-
-        private struct Continuation
-        {
-            public string JobId { get; [UsedImplicitly] set; }
-            public JobContinuationOptions Options { get; [UsedImplicitly] set; }
-        }
     }
 }

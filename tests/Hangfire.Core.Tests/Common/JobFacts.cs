@@ -248,12 +248,41 @@ namespace Hangfire.Core.Tests.Common
         }
 
         [Fact]
+        public void FromNonGenericExpression_InfersACorrectMethod_FromAGivenObject_WhenInterfaceTreeIsUsed()
+        {
+            IDisposable instance = new Instance();
+            var job = Job.FromExpression(() => instance.Dispose());
+
+            Assert.Equal(typeof(Instance), job.Method.DeclaringType);
+        }
+
+        [Fact]
         public void FromNonGenericExpression_ThrowsAnException_IfGivenObjectIsNull()
         {
             IDisposable instance = null;
 
             Assert.Throws<InvalidOperationException>(
                 () => Job.FromExpression(() => instance.Dispose()));
+        }
+
+        [Fact]
+        public void FromScopedExpression_HandlesGenericMethods()
+        {
+            CommandDispatcher dispatcher = new CommandDispatcher();
+            var job = Job.FromExpression(() => dispatcher.DispatchTyped(123));
+
+            Assert.Equal(typeof(CommandDispatcher), job.Type);
+            Assert.Equal(typeof(CommandDispatcher), job.Method.DeclaringType);
+        }
+
+        [Fact]
+        public void FromScopedExpression_HandlesMethodsDeclaredInBaseClasse()
+        {
+            DerivedInstance instance = new DerivedInstance();
+            var job = Job.FromExpression(() => instance.Method());
+
+            Assert.Equal(typeof(DerivedInstance), job.Type);
+            Assert.Equal(typeof(Instance), job.Method.DeclaringType);
         }
 
         [Fact]
@@ -660,6 +689,18 @@ namespace Hangfire.Core.Tests.Common
             await Task.Yield();
         }
 
+        public interface ICommandDispatcher
+        {
+            void DispatchTyped<TCommand>(TCommand command);
+        }
+
+        public class CommandDispatcher : ICommandDispatcher
+        {
+            public void DispatchTyped<TCommand>(TCommand command)
+            {
+            }
+        }
+
         [TestType]
         public class Instance : IDisposable
         {
@@ -690,6 +731,10 @@ namespace Hangfire.Core.Tests.Common
 
                 return FunctionReturningValue();
             }
+        }
+
+        public class DerivedInstance : Instance
+        {
         }
 
         public class BrokenDispose : IDisposable

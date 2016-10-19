@@ -48,7 +48,7 @@ namespace Hangfire.SqlServer
 
         public IEnumerable<string> GetQueues()
         {
-            string sqlQuery = $@"select distinct(Queue) from [{_storage.SchemaName}].JobQueue";
+            string sqlQuery = $@"select distinct(Queue) from [{_storage.SchemaName}].JobQueue with (nolock)";
 
             lock (_cacheLock)
             {
@@ -72,7 +72,7 @@ namespace Hangfire.SqlServer
             string sqlQuery =
 $@"select r.JobId from (
   select jq.JobId, row_number() over (order by jq.Id) as row_num 
-  from [{_storage.SchemaName}].JobQueue jq
+  from [{_storage.SchemaName}].JobQueue jq with (nolock)
   where jq.Queue = @queue
 ) as r
 where r.row_num between @start and @end";
@@ -97,11 +97,11 @@ where r.row_num between @start and @end";
         public EnqueuedAndFetchedCountDto GetEnqueuedAndFetchedCount(string queue)
         {
             string sqlQuery = $@"
-select count(Id) from [{_storage.SchemaName}].JobQueue where [Queue] = @queue";
+select count(Id) from [{_storage.SchemaName}].JobQueue with (nolock) where [Queue] = @queue";
 
             return UseTransaction((connection, transaction) =>
             {
-                var result = connection.Query<int>(sqlQuery, new { queue = queue }, transaction).Single();
+                var result = connection.ExecuteScalar<int>(sqlQuery, new { queue = queue }, transaction);
 
                 return new EnqueuedAndFetchedCountDto
                 {

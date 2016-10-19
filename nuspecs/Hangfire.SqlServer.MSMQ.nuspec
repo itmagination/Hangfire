@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire.SqlServer.MSMQ</id>
-	<version>1.6.4.5001</version>
+	<version>1.6.6.5000</version>
     <title>Hangfire MSMQ Queues for SQL Server Storage</title>
     <authors>Sergey Odinokov</authors>
     <owners>odinserj</owners>

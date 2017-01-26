@@ -154,6 +154,11 @@ namespace Hangfire.Dashboard
             return Raw($"<span data-moment-title=\"{JobHelper.ToTimestamp(time)}\">{value}</span>");
         }
 
+        public NonEscapedString LocalTime(DateTime value)
+        {
+            return Raw($"<span data-moment-local=\"{JobHelper.ToTimestamp(value)}\">{value}</span>");
+        }
+
         public string ToHumanDuration(TimeSpan? duration, bool displaySign = true)
         {
             if (duration == null) return null;
@@ -188,7 +193,7 @@ namespace Hangfire.Dashboard
                     builder.Append(duration.Value.Seconds);
                     if (duration.Value.Milliseconds > 0)
                     {
-                        builder.Append($".{duration.Value.Milliseconds}");
+                        builder.Append($".{duration.Value.Milliseconds.ToString().PadLeft(3, '0')}");
                     }
 
                     builder.Append("s ");

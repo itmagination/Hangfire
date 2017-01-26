@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire.SqlServer</id>
-	<version>1.6.6.5000</version>
+	<version>1.6.8.5000</version>
     <title>Hangfire SQL Server Storage</title>
     <authors>Sergey Odinokov</authors>
     <owners>odinserj</owners>
@@ -13,6 +13,12 @@
     <copyright>Copyright © 2013-2016 Sergey Odinokov</copyright>
     <tags>Hangfire SqlServer SqlAzure LocalDB</tags>
     <releaseNotes>http://hangfire.io/blog/
+    
+1.6.8
+• Fixed – Use `long` where possible instead of `int` for background job identifiers, full support will be in 1.7.0.
+    
+1.6.7
+• Fixed – Validation added to avoid "An invalid application lock time-out" exceptions (by t0mburton).
     
 1.6.6
 • Fixed – SqlServerJobQueue class doesn't use obsolete InvisibilityTimeout parameter anymore.
@@ -50,7 +56,7 @@
     </releaseNotes>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="Hangfire.Core" version="1.6.4.5001" />
+        <dependency id="Hangfire.Core" version="1.6.8.5000" />
       </group>
       <!--
       <group targetFramework="netstandard1.3">

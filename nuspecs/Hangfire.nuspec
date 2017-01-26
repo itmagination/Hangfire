@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire</id>
-	<version>1.6.6.5000</version>
+	<version>1.6.8.5000</version>
     <title>Hangfire</title>
     <authors>Sergey Odinokov</authors>
     <owners>odinserj</owners>
@@ -19,6 +19,42 @@
     <tags>Hangfire AspNet MVC OWIN SqlServer Long-Running Background Fire-And-Forget Delayed Recurring Tasks Jobs Scheduler Threading Queues</tags>
     <releaseNotes>http://hangfire.io/blog/
     
+1.6.8
+
+Hangfire.Core
+• Fixed – `Cron.MonthInterval` now returns correct CRON expression.
+• Fixed – Throw `NotSupportedException` early, when arguments contain delegate or expression.
+• Fixed – Connection and distributed lock kept longer than necessary in `RecurringJobScheduler`.
+• Fixed – Use local date/times everywhere in Dashboard UI.
+• Fixed – Call chart update only when it exists in Dashboard UI to prevent JavaScript errors.
+• Fixed – Scheduled column title is now displaying correctly in Dashboard UI.
+• Fixed – Typo "Nexts jobs" should be "Next jobs" in Dashboard UI (by @danielabbatt).
+
+Hangfire.SqlServer
+• Fixed – Use `long` where possible instead of `int` for background job identifiers, full support will be in 1.7.0.
+    
+1.6.7
+
+Hangfire.Core
+• Fixed – ArgumentException when using complex arguments in generic methods like "IList&lt;T&gt;" (by @aidmsu).
+• Fixed – Generic arrays like "T[]" aren't supported in background job arguments (by @aidmsu).
+• Fixed – Wrong choice of the overload when multiple methods match the given arguments (by @aidmsu).
+• Fixed – Null values for arguments when there are errors during the JSON deserialization.
+• Fixed – Window resize cause errors and uncontrolled growth of event and poll listeners (by @Yarmonov).
+• Fixed – HtmlHelper.ToHumanDuration incorrectly formats fractional seconds (by @pieceofsummer).
+• Fixed – Exception in Dashboard UI when CRON expression is null by an accident (by @aidmsu).
+• Fixed – Error in Dashboard UI when rendering an array that contains a null element (by @djfoz).
+• Fixed – Inconsistent constructors' accessibility for different context classes (by @pieceofsummer).
+• Fixed – Decrease the max default workers count to "20" in tests (by patrykpiotrmarek).
+• Fixed – Inconsistent EOL characters in some files of a project (by @aidmsu).
+• Fixed – Make Queue name accessible from RecurringJobDto (by @swordfish6975).
+
+Hangfire.SqlServer
+• Fixed – Validation added to avoid "An invalid application lock time-out" exceptions (by t0mburton).
+
+Hangfire.AspNetCore
+• Fixed – Parameterless AspNetCoreJobActivator.BeginScope method now returns a correct instance (by @pieceofsummer).
+
 1.6.6
 
 Hangfire.Core
@@ -31,10 +67,10 @@ Hangfire.SqlServer
 1.6.5
 
 Hangfire.Core
-• Added – Chinese language to Dashboard UI.
+• Added – Chinese language to Dashboard UI (by @andy-zhouyou).
 • Changed – Default upper limit of worker number is 20.
 • Changed – Default value for DashboardJobListLimit is now 10000.
-• Fixed – Deserialization exception in continuations, when TypeNameHandling.All option is used.
+• Fixed – Deserialization exception in continuations, when TypeNameHandling.All option is used (by @MaksimSimkin).
 • Fixed – I18N is not working, because there are no localized resources in NuGet packages.
 • Fixed – Infinite redirect loops, when authenticated, but not authorized user accesses Dashboard UI.
 • Fixed – "The type ... exists in both..." issue when building Hangfire, related to Newtonsoft.Json.
@@ -146,8 +182,8 @@ Hangfire.SqlServer.Msmq
     </releaseNotes>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="Hangfire.Core" version="1.6.4.5001" />
-        <dependency id="Hangfire.SqlServer" version="1.6.4.5001" />
+        <dependency id="Hangfire.Core" version="1.6.8.5000" />
+        <dependency id="Hangfire.SqlServer" version="1.6.8.5000" />
         <dependency id="Microsoft.Owin.Host.SystemWeb" version="3.0.0" />
       </group>
       <!--

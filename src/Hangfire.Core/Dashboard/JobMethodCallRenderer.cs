@@ -128,7 +128,7 @@ namespace Hangfire.Dashboard
                         foreach (var item in (IEnumerable)argumentValue)
                         {
                             var argumentRenderer = ArgumentRenderer.GetRenderer(enumerableArgument);
-                            renderedItems.Add(argumentRenderer.Render(item.ToString(),
+                            renderedItems.Add(argumentRenderer.Render(item?.ToString(),
                                 JobHelper.Serialize(item)));
                         }
 

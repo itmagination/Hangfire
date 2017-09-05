@@ -16,13 +16,26 @@
 
 using System;
 using System.Globalization;
+using System.Runtime.Remoting.Messaging;
 using Hangfire.Annotations;
+using Hangfire.Logging;
 
 namespace Hangfire.Common
 {
     public static class JobHelper
     {
-        private static IJobSerializer _jobSerializer = new JsonJobSerializer(null);
+        private static IJobSerializer _defaultJobSerializer = new JsonJobSerializer(null);
+        private static IJobSerializer _jobSerializer = null;
+
+        private static readonly ILog Logger = LogProvider.GetLogger("JobSerializer");
+
+        public static void SetDefaultJobSerializer(IJobSerializer jobSerializer)
+        {
+            if (jobSerializer == null)
+                throw new ArgumentNullException(nameof(jobSerializer));
+
+            _defaultJobSerializer = jobSerializer;
+        }
 
         public static void SetJobSerializer(IJobSerializer jobSerializer)
         {
@@ -31,25 +44,64 @@ namespace Hangfire.Common
 
         public static string Serialize(object value)
         {
-            return value != null
-                ? _jobSerializer.Serialize(value)
-                : null;
+            if (value == null)
+                return null;
+
+            try
+            {
+                return _defaultJobSerializer.Serialize(value);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Warn, () => ex.Message, ex);
+
+                if (_jobSerializer != null)
+                    return _jobSerializer.Serialize(value);
+
+                throw;
+            }
         }
 
         public static T Deserialize<T>(string value)
         {
-            return value != null
-                ? _jobSerializer.Deserialize<T>(value)
-                : default(T);
+            if (value == null)
+                return default(T);
+
+            try
+            {
+                return _defaultJobSerializer.Deserialize<T>(value);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Warn, () => ex.Message, ex);
+
+                if (_jobSerializer != null)
+                    return _jobSerializer.Deserialize<T>(value);
+
+                throw;
+            }
         }
 
         public static object Deserialize(string value, [NotNull] Type type)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
 
-            return value != null
-                ? _jobSerializer.Deserialize(value, type)
-                : null;
+            if (value == null)
+                return null;
+
+            try
+            {
+                return _defaultJobSerializer.Deserialize(value, type);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Warn, () => ex.Message, ex);
+
+                if (_jobSerializer != null)
+                    return _jobSerializer.Deserialize(value, type);
+
+                throw;
+            }
         }
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);

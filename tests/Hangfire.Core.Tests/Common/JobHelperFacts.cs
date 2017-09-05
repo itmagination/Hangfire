@@ -141,10 +141,32 @@ namespace Hangfire.Core.Tests.Common
         {
             try
             {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
+                JobHelper.SetDefaultJobSerializer(new JsonJobSerializer(new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
 
                 var result = JobHelper.Serialize(new ClassA("A"));
                 Assert.Equal(@"{""propertyA"":""A""}", result);
+            }
+            finally
+            {
+                JobHelper.SetDefaultJobSerializer(new JsonJobSerializer(null));
+            }
+        }
+
+        [Fact]
+        public void DefaultSerializerCouldNotSerializeCircularReferences()
+        {
+                Assert.Throws<JsonSerializationException>(() => JobHelper.Serialize(new ClassWithCircularReference()));
+        }
+
+        [Fact]
+        public void FallbackSerializerShouldSerializeCircularReferences()
+        {
+            try
+            {
+                JobHelper.SetJobSerializer(new JsonJobSerializer(new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+
+                var result = JobHelper.Serialize(new ClassWithCircularReference());
+                Assert.Equal("{}", result);
             }
             finally
             {
@@ -236,6 +258,14 @@ namespace Hangfire.Core.Tests.Common
             }
 
             public string PropertyA { get; }
+        }
+
+        private class ClassWithCircularReference : IClass
+        {
+            public ClassWithCircularReference CircularReference
+            {
+                get { return this; }
+            }
         }
 
         private class BackgroundJob

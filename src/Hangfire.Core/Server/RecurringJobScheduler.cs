@@ -114,8 +114,7 @@ namespace Hangfire.Server
 
             _throttler.Throttle(context.CancellationToken);
 
-            using (var connection = context.Storage.GetConnection())
-            using (connection.AcquireDistributedLock("recurring-jobs:lock", LockTimeout))
+            UseConnectionDistributedLock(context.Storage, connection =>
             {
                 var recurringJobIds = connection.GetAllItemsFromSet("recurring-jobs");
 
@@ -140,7 +139,7 @@ namespace Hangfire.Server
                             ex);
                     }
                 }
-            }
+            });
 
             // The code above may be completed in less than a second. Default throttler use
             // the second resolution, and without an extra delay, CPU and DB bursts may happen.
@@ -225,6 +224,28 @@ namespace Hangfire.Server
                     ex);
             }
 
+        }
+
+        private void UseConnectionDistributedLock(JobStorage storage, Action<IStorageConnection> action)
+        {
+            var resource = "recurring-jobs:lock";
+            try
+            {
+                using (var connection = storage.GetConnection())
+                using (connection.AcquireDistributedLock(resource, LockTimeout))
+                {
+                    action(connection);
+                }
+            }
+            catch (DistributedLockTimeoutException e) when (e.Resource == resource)
+            {
+                // DistributedLockTimeoutException here doesn't mean that recurring jobs weren't scheduled.
+                // It just means another Hangfire server did this work.
+                Logger.Log(
+                    LogLevel.Debug,
+                    () => $@"An exception was thrown during acquiring distributed lock the {resource} resource within {LockTimeout.TotalSeconds} seconds. The recurring jobs have not been handled this time.",
+                    e);
+            }
         }
 
         private static DateTime GetLastInstant(IReadOnlyDictionary<string, string> recurringJob, IScheduleInstant instant)

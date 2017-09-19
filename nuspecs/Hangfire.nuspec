@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire</id>
-	<version>1.6.8.6000</version>
+	<version>1.6.16.6000</version>
     <title>Hangfire</title>
     <authors>Sergey Odinokov</authors>
     <owners>odinserj</owners>
@@ -15,10 +15,87 @@
       Backed by Redis, SQL Server, SQL Azure or MSMQ. This is a .NET alternative to Sidekiq, Resque and Celery.
       http://hangfire.io/
     </description>
-    <copyright>Copyright © 2013-2016 Sergey Odinokov</copyright>
+    <copyright>Copyright © 2013-2017 Sergey Odinokov</copyright>
     <tags>Hangfire AspNet MVC OWIN SqlServer Long-Running Background Fire-And-Forget Delayed Recurring Tasks Jobs Scheduler Threading Queues</tags>
     <releaseNotes>http://hangfire.io/blog/
     
+1.6.16
+
+Hangfire.Core
+
+• Fixed – Unexpected `DateTime` and `DateTime?` serialization issues in background job arguments (by @plaisted).
+• Fixed – `DistributedLockTimeoutException` in some background processes now logged with "DEBUG" level instead of "ERROR".
+• Fixed – `ElmahLogProvider` to show errors when using SQL log (by @francnuec).
+• Fixed – Last execution field isn't shown on recurring jobs page, when background job has already expired.
+• Fixed – `Hangfire.SqlServer` assembly doesn't include version in the `netstandard` target.
+
+Hangfire.SqlServer
+
+• Fixed – Lower the number of requests, when trying to acquire a distributed lock.
+• Fixed – Problems with continuations and batch continuations, when using existing `SqlConnection` instance.
+• Fixed – Distributed locks were silently released, when passing explicit closed connection to a storage.
+• Fixed – `KeyNotFoundException` errors on various dashboard pages don't appear anymore (by @benjymous).
+• Fixed – "Cannot release the application lock because it is not currently held" exceptions, when connection was closed.
+• Fixed – Allow to use zero timeout for SQL Server-based distributed locks.
+    
+1.6.15
+
+Hangfire.SqlServer
+
+• Fixed – Timeout exceptions that's caused by SQL Server's thread pool starvation, caused by sp_getapplock.
+• Fixed – Antecedent background job is constantly failing, when its continuation hasn't been fully created.
+    
+1.6.14
+
+Hangfire.SqlServer
+
+• Added – `SqlServerStorageOptions.SlidingInvisibilityTimeout` to fetch jobs without using transaction.
+• Fixed – Transaction log is full due to 'ACTIVE_TRANSACTION' by enabling to use new non-transactional fetch.
+• Fixed – `SqlServerJobQueueMonitoringApi` can't cause READ UNCOMMITTED isolation level to leak on SQL Server 2012 or earlier. 
+• Fixed – Add missing `SqlServerStorage(DbConnection, SqlServerStorageOptions)` constructor.
+    
+1.6.13
+
+Hangfire.Core
+• Fixed – Continuation is fired on a wrong queue, when parent job is finished before the creation.
+• Fixed – Impossible to intercept failed state transition before `AutomaticRetryAttribute`.
+• Fixed – Fixed translation in Chinese localization on home page (by @JustinChia).
+• Fixed – Don't throw `NullReferenceException`, when state has changed during query on Processing page.
+• Fixed – `CreateBatchFailedException`, when batch creation takes longer than 1 hour.
+
+Hangfire.AspNetCore
+• Fixed – Types are resolved using the `GetServiceOrCreateInstance` method (by @Tsabo).
+
+Hangfire.SqlServer
+• Fixed – Don't hide errors occurred while running SQL migrations.
+• Fixed – `KeyNotFoundException` when accessing Deleted Jobs page in Dashboard.
+• Fixed – `SqlServerDistributedLock` leaks connections, when lock acquisition is failed.
+    
+1.6.12
+
+Hangfire.Core
+• Fixed – Buggy state filters may cause background job to be infinitely retried.
+• Fixed – Transient exception during Processing-Succeeded state transition may cause unexpected retry.
+    
+1.6.11
+
+Hangfire.Core
+• Fixed – `NullReferenceException` in dashboard when OWIN's or ASP.NET Core's `User` is `null`.
+• Fixed – Regression related to missing CSS and JS resources in dashboard appeared in 1.6.10.
+    
+1.6.10
+
+Hangfire.Core
+• Fixed – Duplicate job continuations aren't added anymore, when outer transaction has failed.
+• Fixed – Existing duplicate continuations don't lead to `ArgumentException`: the same key already added.
+• Fixed – Replace inline script, because it may violate the Content Security Policy (by @Beczka).
+• Fixed – Don't skip records in RecurringJobsPage (by @reaction1989).
+    
+1.6.9
+
+Hangfire.SqlServer
+• Fixed – `TimeoutException` on large arguments or large batches via `SqlServerOptions.CommandTimeout`.
+
 1.6.8
 
 Hangfire.Core

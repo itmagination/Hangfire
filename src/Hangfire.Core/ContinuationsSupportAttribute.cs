@@ -251,12 +251,12 @@ namespace Hangfire
         private static void SetContinuations(
             IStorageConnection connection, string jobId, List<Continuation> continuations)
         {
-            connection.SetJobParameter(jobId, "Continuations", JobHelper.Serialize(continuations));
+            connection.SetJobParameter(jobId, "Continuations", JobHelper.ToJson(continuations));
         }
 
         private static List<Continuation> GetContinuations(IStorageConnection connection, string jobId)
         {
-            return JobHelper.Deserialize<List<Continuation>>(connection.GetJobParameter(
+            return JobHelper.FromJson<List<Continuation>>(connection.GetJobParameter(
                 jobId, "Continuations")) ?? new List<Continuation>();
         }
 
@@ -264,7 +264,6 @@ namespace Hangfire
         {
         }
 
-        [Serializable]
         internal struct Continuation
         {
             public string JobId { get; set; }

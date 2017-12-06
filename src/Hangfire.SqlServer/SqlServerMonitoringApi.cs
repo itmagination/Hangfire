@@ -132,7 +132,7 @@ namespace Hangfire.SqlServer
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var server in servers)
                 {
-                    var data = JobHelper.Deserialize<ServerData>(server.Data);
+                    var data = JobHelper.FromJson<ServerData>(server.Data);
                     result.Add(new ServerDto
                     {
                         Name = server.Id,
@@ -286,7 +286,7 @@ select * from [{_storage.SchemaName}].State with (nolock) where JobId = @id orde
                                 CreatedAt = x.CreatedAt,
                                 Reason = x.Reason,
                                 Data = new SafeDictionary<string, string>(
-                                    JobHelper.Deserialize<Dictionary<string, string>>(x.Data),
+                                    JobHelper.FromJson<Dictionary<string, string>>(x.Data),
                                     StringComparer.OrdinalIgnoreCase),
                             })
                             .ToList();
@@ -484,7 +484,7 @@ where j.Id in @jobIds";
 
         private static Job DeserializeJob(string invocationData, string arguments)
         {
-            var data = JobHelper.Deserialize<InvocationData>(invocationData);
+            var data = JobHelper.FromJson<InvocationData>(invocationData);
             data.Arguments = arguments;
 
             try
@@ -540,7 +540,7 @@ order by j.Id desc";
                 
                 if (job.InvocationData != null)
                 {
-                    var deserializedData = JobHelper.Deserialize<Dictionary<string, string>>(job.StateData);
+                    var deserializedData = JobHelper.FromJson<Dictionary<string, string>>(job.StateData);
                     var stateData = deserializedData != null
                         ? new SafeDictionary<string, string>(deserializedData, StringComparer.OrdinalIgnoreCase)
                         : null;
@@ -595,7 +595,7 @@ where j.Id in @jobIds";
             public SafeDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) 
                 : base(dictionary, comparer)
             {
-    }
+            }
 
             public new TValue this[TKey i]
             {

@@ -18,53 +18,53 @@ namespace Hangfire.Core.Tests.Common
         private const int WellKnownTimestamp = 577501952;
 
         [Fact]
-        public void Serialize_EncodesNullValueAsNull()
+        public void ToJson_EncodesNullValueAsNull()
         {
-            var result = JobHelper.Serialize(null);
+            var result = JobHelper.ToJson(null);
             Assert.Null(result);
         }
 
         [Fact]
-        public void Serialize_EncodesGivenValue_ToJsonString()
+        public void ToJson_EncodesGivenValue_ToJsonString()
         {
-            var result = JobHelper.Serialize("hello");
+            var result = JobHelper.ToJson("hello");
             Assert.Equal("\"hello\"", result);
         }
 
         [Fact]
-        public void Deserialize_DecodesNullAsDefaultValue()
+        public void FromJson_DecodesNullAsDefaultValue()
         {
-            var stringResult = JobHelper.Deserialize<string>(null);
-            var intResult = JobHelper.Deserialize<int>(null);
+            var stringResult = JobHelper.FromJson<string>(null);
+            var intResult = JobHelper.FromJson<int>(null);
 
             Assert.Null(stringResult);
             Assert.Equal(0, intResult);
         }
 
         [Fact]
-        public void Deserialize_DecodesFromJsonString()
+        public void FromJson_DecodesFromJsonString()
         {
-            var result = JobHelper.Deserialize<string>("\"hello\"");
+            var result = JobHelper.FromJson<string>("\"hello\"");
             Assert.Equal("hello", result);
         }
 
         [Fact]
-        public void Deserialize_ThrowsAnException_WhenTypeIsNull()
+        public void FromJson_ThrowsAnException_WhenTypeIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => JobHelper.Deserialize("1", null));
+            Assert.Throws<ArgumentNullException>(() => JobHelper.FromJson("1", null));
         }
 
         [Fact]
-        public void Deserialize_WithType_DecodesFromJsonString()
+        public void FromJson_WithType_DecodesFromJsonString()
         {
-            var result = (string)JobHelper.Deserialize("\"hello\"", typeof(string));
+            var result = (string) JobHelper.FromJson("\"hello\"", typeof (string));
             Assert.Equal("hello", result);
         }
 
         [Fact]
-        public void Deserialize_WithType_DecodesNullValue_ToNull()
+        public void FromJson_WithType_DecodesNullValue_ToNull()
         {
-            var result = (string)JobHelper.Deserialize(null, typeof(string));
+            var result = (string) JobHelper.FromJson(null, typeof (string));
             Assert.Null(result);
         }
 
@@ -123,16 +123,16 @@ namespace Hangfire.Core.Tests.Common
         }
 
         [Fact]
-        public void Deserialize_WithObjectType_DecodesFromJsonString()
+        public void FromJson_WithObjectType_DecodesFromJsonString()
         {
-            var result = (ClassA)JobHelper.Deserialize(@"{ ""PropertyA"": ""hello"" }", typeof(ClassA));
+            var result = (ClassA)JobHelper.FromJson(@"{ ""PropertyA"": ""hello"" }", typeof(ClassA));
             Assert.Equal("hello", result.PropertyA);
         }
 
         [Fact]
         public void ForSerializeUseDefaultConfigurationOfJsonNet()
         {
-            var result = JobHelper.Serialize(new ClassA("A"));
+            var result = JobHelper.ToJson(new ClassA("A"));
             Assert.Equal(@"{""PropertyA"":""A""}", result);
         }
 
@@ -141,36 +141,14 @@ namespace Hangfire.Core.Tests.Common
         {
             try
             {
-                JobHelper.SetDefaultJobSerializer(new JsonJobSerializer(new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
+                JobHelper.SetSerializerSettings(new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
 
-                var result = JobHelper.Serialize(new ClassA("A"));
+                var result = JobHelper.ToJson(new ClassA("A"));
                 Assert.Equal(@"{""propertyA"":""A""}", result);
             }
             finally
             {
-                JobHelper.SetDefaultJobSerializer(new JsonJobSerializer(null));
-            }
-        }
-
-        [Fact]
-        public void DefaultSerializerCouldNotSerializeCircularReferences()
-        {
-                Assert.Throws<JsonSerializationException>(() => JobHelper.Serialize(new ClassWithCircularReference()));
-        }
-
-        [Fact]
-        public void FallbackSerializerShouldSerializeCircularReferences()
-        {
-            try
-            {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
-
-                var result = JobHelper.Serialize(new ClassWithCircularReference());
-                Assert.Equal("{}", result);
-            }
-            finally
-            {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(null));
+                JobHelper.SetSerializerSettings(null);
             }
         }
 
@@ -179,19 +157,17 @@ namespace Hangfire.Core.Tests.Common
         {
             try
             {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(
-                                               new JsonSerializerSettings
-                                               {
-                                                   TypeNameHandling = TypeNameHandling.Objects
-                                               })
-                    );
+                JobHelper.SetSerializerSettings(new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Objects
+                });
 
-                var result = (ClassA)JobHelper.Deserialize<IClass>(@"{ ""$type"": ""Hangfire.Core.Tests.Common.JobHelperFacts+ClassA, Hangfire.Core.Tests"", ""propertyA"":""A"" }");
+                var result = (ClassA)JobHelper.FromJson<IClass>(@"{ ""$type"": ""Hangfire.Core.Tests.Common.JobHelperFacts+ClassA, Hangfire.Core.Tests"", ""propertyA"":""A"" }");
                 Assert.Equal("A", result.PropertyA);
             }
             finally
             {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(null));
+                JobHelper.SetSerializerSettings(null);
             }
         }
 
@@ -200,13 +176,11 @@ namespace Hangfire.Core.Tests.Common
         {
             try
             {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(
-                               new JsonSerializerSettings
-                               {
-                                   TypeNameHandling = TypeNameHandling.All,
-                                   TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple
-                               })
-                    );
+                JobHelper.SetSerializerSettings(new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.All,
+                    TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple
+                });
 
                 var method = typeof (BackgroundJob).GetMethod("DoWork");
                 var args = new object[] { "123", "Test" };
@@ -221,7 +195,7 @@ namespace Hangfire.Core.Tests.Common
             }
             finally
             {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(null));
+                JobHelper.SetSerializerSettings(null);
             }
         }
 
@@ -230,19 +204,17 @@ namespace Hangfire.Core.Tests.Common
         {
             try
             {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(
-                                               new JsonSerializerSettings
-                                               {
-                                                   TypeNameHandling = TypeNameHandling.Objects
-                                               })
-                    );
+                JobHelper.SetSerializerSettings(new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Objects
+                });
 
-                var result = (ClassA)JobHelper.Deserialize(@"{ ""$type"": ""Hangfire.Core.Tests.Common.JobHelperFacts+ClassA, Hangfire.Core.Tests"", ""propertyA"":""A"" }", typeof(IClass));
+                var result = (ClassA)JobHelper.FromJson(@"{ ""$type"": ""Hangfire.Core.Tests.Common.JobHelperFacts+ClassA, Hangfire.Core.Tests"", ""propertyA"":""A"" }", typeof(IClass));
                 Assert.Equal("A", result.PropertyA);
             }
             finally
             {
-                JobHelper.SetJobSerializer(new JsonJobSerializer(null));
+                JobHelper.SetSerializerSettings(null);
             }
         }
 
@@ -258,14 +230,6 @@ namespace Hangfire.Core.Tests.Common
             }
 
             public string PropertyA { get; }
-        }
-
-        private class ClassWithCircularReference : IClass
-        {
-            public ClassWithCircularReference CircularReference
-            {
-                get { return this; }
-            }
         }
 
         private class BackgroundJob

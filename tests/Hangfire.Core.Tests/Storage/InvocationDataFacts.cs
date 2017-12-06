@@ -20,8 +20,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 type.AssemblyQualifiedName,
                 methodInfo.Name,
-                JobHelper.Serialize(new[] { typeof(string) }),
-                JobHelper.Serialize(new[] { JobHelper.Serialize("Hello") }));
+                JobHelper.ToJson(new [] { typeof(string) }),
+                JobHelper.ToJson(new [] { JobHelper.ToJson("Hello") }));
 
             var job = serializedData.Deserialize();
 
@@ -58,7 +58,7 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 "NonExistingMethod",
-                JobHelper.Serialize(new[] { typeof(string) }),
+                JobHelper.ToJson(new [] { typeof(string) }),
                 "");
 
             Assert.Throws<JobLoadException>(
@@ -74,8 +74,8 @@ namespace Hangfire.Core.Tests.Storage
 
             Assert.Equal(typeof(InvocationDataFacts).AssemblyQualifiedName, invocationData.Type);
             Assert.Equal("Sample", invocationData.Method);
-            Assert.Equal(JobHelper.Serialize(new[] { typeof(string) }), invocationData.ParameterTypes);
-            Assert.Equal(JobHelper.Serialize(new[] { "\"Hello\"" }), invocationData.Arguments);
+            Assert.Equal(JobHelper.ToJson(new[] { typeof(string) }), invocationData.ParameterTypes);
+            Assert.Equal(JobHelper.ToJson(new[] { "\"Hello\"" }), invocationData.Arguments);
         }
 
         [Fact]
@@ -107,8 +107,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(IParent).AssemblyQualifiedName,
                 "Method",
-                JobHelper.Serialize(new Type[0]),
-                JobHelper.Serialize(new string[0]));
+                JobHelper.ToJson(new Type[0]),
+                JobHelper.ToJson(new string[0]));
 
             var job = serializedData.Deserialize();
 
@@ -121,26 +121,26 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(IChild).AssemblyQualifiedName,
                 "Method",
-                JobHelper.Serialize(new Type[0]),
-                JobHelper.Serialize(new string[0]));
+                JobHelper.ToJson(new Type[0]),
+                JobHelper.ToJson(new string[0]));
 
             var job = serializedData.Deserialize();
 
             Assert.Equal(typeof(IChild), job.Type);
         }
 
-        //[Fact]
-        //public void Deserialize_RethrowsJsonException_InsteadOfNullValue_WhenReferenceConverterChosen()
-        //{
-        //    var serializedData = new InvocationData(
-        //        typeof(InvocationDataFacts).AssemblyQualifiedName,
-        //        "ListMethod",
-        //        JobHelper.ToJson(new [] { typeof(IList<string>) }),
-        //        JobHelper.ToJson(new [] { "asdfasdf" }));
+        [Fact]
+        public void Deserialize_RethrowsJsonException_InsteadOfNullValue_WhenReferenceConverterChosen()
+        {
+            var serializedData = new InvocationData(
+                typeof(InvocationDataFacts).AssemblyQualifiedName,
+                "ListMethod",
+                JobHelper.ToJson(new [] { typeof(IList<string>) }),
+                JobHelper.ToJson(new [] { "asdfasdf" }));
 
-        //    var exception = Assert.Throws<JobLoadException>(() => serializedData.Deserialize());
-        //    Assert.IsType<JsonReaderException>(exception.InnerException);
-        //}
+            var exception = Assert.Throws<JobLoadException>(() => serializedData.Deserialize());
+            Assert.IsType<JsonReaderException>(exception.InnerException);
+        }
 
         [Fact]
         public void Deserialize_CorrectlyDeserializes_LocalDateTimeArguments_ConvertedToRoundtripFormat()
@@ -149,8 +149,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(DateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime) }),
-                JobHelper.Serialize(new[] { value.ToString("o", CultureInfo.InvariantCulture) }));
+                JobHelper.ToJson(new[] { typeof(DateTime) }),
+                JobHelper.ToJson(new[] { value.ToString("o", CultureInfo.InvariantCulture) }));
 
             var job = serializedData.Deserialize();
 
@@ -164,8 +164,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(DateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime) }),
-                JobHelper.Serialize(new[] { value.ToString("o", CultureInfo.InvariantCulture) }));
+                JobHelper.ToJson(new[] { typeof(DateTime) }),
+                JobHelper.ToJson(new[] { value.ToString("o", CultureInfo.InvariantCulture) }));
 
             var job = serializedData.Deserialize();
 
@@ -180,8 +180,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(DateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime) }),
-                JobHelper.Serialize(new[] { value.ToString("o", CultureInfo.InvariantCulture) }));
+                JobHelper.ToJson(new[] { typeof(DateTime) }),
+                JobHelper.ToJson(new[] { value.ToString("o", CultureInfo.InvariantCulture) }));
 
             var job = serializedData.Deserialize();
 
@@ -195,8 +195,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(DateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime) }),
-                JobHelper.Serialize(new[] { value.ToString("MM/dd/yyyy HH:mm:ss.ffff", CultureInfo.InvariantCulture) }));
+                JobHelper.ToJson(new[] { typeof(DateTime) }),
+                JobHelper.ToJson(new[] { value.ToString("MM/dd/yyyy HH:mm:ss.ffff", CultureInfo.InvariantCulture) }));
 
             var job = serializedData.Deserialize();
 
@@ -217,8 +217,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(DateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime) }),
-                JobHelper.Serialize(new[] { value.ToString("MM/dd/yyyy HH:mm:ss.ffff", CultureInfo.InvariantCulture) }));
+                JobHelper.ToJson(new[] { typeof(DateTime) }),
+                JobHelper.ToJson(new[] { value.ToString("MM/dd/yyyy HH:mm:ss.ffff", CultureInfo.InvariantCulture) }));
 
             var job = serializedData.Deserialize();
 
@@ -240,8 +240,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(DateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime) }),
-                JobHelper.Serialize(new[] { value.ToString("MM/dd/yyyy HH:mm:ss.ffff", CultureInfo.InvariantCulture) }));
+                JobHelper.ToJson(new[] { typeof(DateTime) }),
+                JobHelper.ToJson(new[] { value.ToString("MM/dd/yyyy HH:mm:ss.ffff", CultureInfo.InvariantCulture) }));
 
             var job = serializedData.Deserialize();
 
@@ -262,8 +262,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(NullableDateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime?) }),
-                JobHelper.Serialize(new[] { value.Value.ToString("o", CultureInfo.InvariantCulture) }));
+                JobHelper.ToJson(new[] { typeof(DateTime?) }),
+                JobHelper.ToJson(new[] { value.Value.ToString("o", CultureInfo.InvariantCulture) }));
 
             var job = serializedData.Deserialize();
 
@@ -289,8 +289,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(NullableDateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime?) }),
-                JobHelper.Serialize(new[] { value.Value.ToString("o", CultureInfo.InvariantCulture) }));
+                JobHelper.ToJson(new[] { typeof(DateTime?) }),
+                JobHelper.ToJson(new[] { value.Value.ToString("o", CultureInfo.InvariantCulture) }));
 
             var job = serializedData.Deserialize();
 
@@ -305,8 +305,8 @@ namespace Hangfire.Core.Tests.Storage
             var serializedData = new InvocationData(
                 typeof(InvocationDataFacts).AssemblyQualifiedName,
                 nameof(NullableDateTimeMethod),
-                JobHelper.Serialize(new[] { typeof(DateTime?) }),
-                JobHelper.Serialize(new[] { value }));
+                JobHelper.ToJson(new[] { typeof(DateTime?) }),
+                JobHelper.ToJson(new[] { value }));
 
             var job = serializedData.Deserialize();
 

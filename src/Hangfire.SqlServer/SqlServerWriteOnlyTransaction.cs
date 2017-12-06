@@ -106,7 +106,7 @@ update [{_storage.SchemaName}].Job set StateId = SCOPE_IDENTITY(), StateName = @
                     name = state.Name,
                     reason = state.Reason,
                     createdAt = DateTime.UtcNow,
-                    data = JobHelper.Serialize(state.SerializeData()),
+                    data = JobHelper.ToJson(state.SerializeData()),
                     id = long.Parse(jobId)
                 },
                 transaction,
@@ -126,8 +126,8 @@ values (@jobId, @name, @reason, @createdAt, @data)";
                     jobId = long.Parse(jobId), 
                     name = state.Name,
                     reason = state.Reason,
-                    createdAt = DateTime.UtcNow,
-                    data = JobHelper.Serialize(state.SerializeData())
+                    createdAt = DateTime.UtcNow, 
+                    data = JobHelper.ToJson(state.SerializeData())
                 },
                 transaction,
                 _storage.CommandTimeout));

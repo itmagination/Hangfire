@@ -18,7 +18,6 @@ using System;
 
 namespace Hangfire.SqlServer.Entities
 {
-    [Serializable]
     internal class ServerData
     {
         public int WorkerCount { get; set; }

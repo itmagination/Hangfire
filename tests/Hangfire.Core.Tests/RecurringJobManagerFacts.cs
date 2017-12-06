@@ -223,7 +223,7 @@ namespace Hangfire.Core.Tests
             _connection.Setup(x => x.GetAllEntriesFromHash($"recurring-job:{_id}"))
                 .Returns(new Dictionary<string, string>
                 {
-                    { "Job", JobHelper.Serialize(InvocationData.Serialize(Job.FromExpression(() => Console.WriteLine()))) }
+                    { "Job", JobHelper.ToJson(InvocationData.Serialize(Job.FromExpression(() => Console.WriteLine()))) }
                 });
 
             var manager = CreateManager();
@@ -242,7 +242,7 @@ namespace Hangfire.Core.Tests
             _connection.Setup(x => x.GetAllEntriesFromHash($"recurring-job:{_id}"))
                 .Returns(new Dictionary<string, string>
                 {
-                    { "Job", JobHelper.Serialize(InvocationData.Serialize(Job.FromExpression(() => Console.WriteLine()))) },
+                    { "Job", JobHelper.ToJson(InvocationData.Serialize(Job.FromExpression(() => Console.WriteLine()))) },
                     { "Queue", "my_queue" }
                 });
 

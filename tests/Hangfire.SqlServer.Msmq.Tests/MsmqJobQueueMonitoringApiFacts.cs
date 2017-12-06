@@ -47,7 +47,7 @@ namespace Hangfire.SqlServer.Msmq.Tests
             Assert.Empty(fetchedJobIds);
         }
 
-        [Fact(Skip = "There is well-known problem with this test, so I will skip it for now."), CleanMsmqQueue("my-queue", "another-queue")]
+        [Fact, CleanMsmqQueue("my-queue", "another-queue")]
         public void GetEnqueuedAndFetchedCount_ReturnsCorrectCounters()
         {
             MsmqUtils.EnqueueJobId("my-queue", "1");

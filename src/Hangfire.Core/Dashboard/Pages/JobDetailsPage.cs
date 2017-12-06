@@ -10,5 +10,6 @@ namespace Hangfire.Dashboard.Pages
         }
 
         public string JobId { get; }
+
     }
 }

@@ -13,6 +13,21 @@
     <copyright>Copyright © 2013-2017 Sergey Odinokov</copyright>
     <tags>Hangfire SqlServer SqlAzure LocalDB</tags>
     <releaseNotes>http://hangfire.io/blog/
+      
+1.6.19
+• Fixed – "String or binary data would be truncated" exception when state reason is too long.
+• Fixed – Command handling in batch mode now stops after the first error due to "XACT_ABORT ON".
+• Fixed – Make SqlCommandBatch disposable to dispose all the commands.
+      
+1.6.18
+• Fixed – Rare deadlocks in SQL Server caused by the SetRangeInHash command.
+    
+1.6.17
+• Added – `SqlServerStorageOptions.CommandBatchMaxTimeout` parameter to enable batching in transactions.
+• Fixed – Timeout exceptions when there are a lot of large concurrent transactions by using the new batching method.
+• Fixed – Distributed locks are safe now even in very unreliable networks and after network blips.
+• Performance – Greatly decreased the number of connections required to process background jobs.
+• Performance – Significantly decrease the number of roundtrips required to commit a transaction.
     
 1.6.16
 • Fixed – Lower the number of requests, when trying to acquire a distributed lock.

@@ -24,6 +24,7 @@ using Hangfire.Logging;
 using Hangfire.Server;
 using Hangfire.States;
 using Hangfire.UnitOfWork;
+using System.ComponentModel;
 
 namespace Hangfire
 {
@@ -78,15 +79,34 @@ namespace Hangfire
             [NotNull] BackgroundJobServerOptions options,
             [NotNull] JobStorage storage,
             [NotNull] IEnumerable<IBackgroundProcess> additionalProcesses)
+            : this(options, storage, additionalProcesses, 
+                   options.FilterProvider ?? JobFilterProviders.Providers,
+                   options.Activator ?? JobActivator.Current, 
+                   null, null, null)
+        {
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public BackgroundJobServer(
+            [NotNull] BackgroundJobServerOptions options,
+            [NotNull] JobStorage storage,
+            [NotNull] IEnumerable<IBackgroundProcess> additionalProcesses,
+            [NotNull] IJobFilterProvider filterProvider,
+            [NotNull] JobActivator activator,
+            [CanBeNull] IBackgroundJobFactory factory,
+            [CanBeNull] IBackgroundJobPerformer performer,
+            [CanBeNull] IBackgroundJobStateChanger stateChanger)
         {
             if (storage == null) throw new ArgumentNullException(nameof(storage));
             if (options == null) throw new ArgumentNullException(nameof(options));
             if (additionalProcesses == null) throw new ArgumentNullException(nameof(additionalProcesses));
+            if (filterProvider == null) throw new ArgumentNullException(nameof(filterProvider));
+            if (activator == null) throw new ArgumentNullException(nameof(activator));
 
             _options = options;
 
             var processes = new List<IBackgroundProcess>();
-            processes.AddRange(GetRequiredProcesses());
+            processes.AddRange(GetRequiredProcesses(filterProvider, activator, factory, performer, stateChanger));
             processes.AddRange(additionalProcesses);
 
             var properties = new Dictionary<string, object>
@@ -125,9 +145,15 @@ namespace Hangfire
             Logger.Info("Hangfire Server stopped.");
         }
 
-        private IEnumerable<IBackgroundProcess> GetRequiredProcesses()
+        private IEnumerable<IBackgroundProcess> GetRequiredProcesses(
+            [NotNull] IJobFilterProvider filterProvider,
+            [NotNull] JobActivator activator,
+            [CanBeNull] IBackgroundJobFactory factory,
+            [CanBeNull] IBackgroundJobPerformer performer,
+            [CanBeNull] IBackgroundJobStateChanger stateChanger)
         {
             var processes = new List<IBackgroundProcess>();
+
 
             var filterProvider = _options.FilterProvider ?? JobFilterProviders.Providers;
 
@@ -135,6 +161,10 @@ namespace Hangfire
             var performer = new BackgroundJobPerformer(filterProvider, _options.Activator ?? JobActivator.Current, 
                 _options.UnitOfWorkManager ?? UnitOfWorkManager.Current);
             var stateChanger = new BackgroundJobStateChanger(filterProvider);
+            
+            factory = factory ?? new BackgroundJobFactory(filterProvider);
+            performer = performer ?? new BackgroundJobPerformer(filterProvider, activator);
+            stateChanger = stateChanger ?? new BackgroundJobStateChanger(filterProvider);
             
             for (var i = 0; i < _options.WorkerCount; i++)
             {

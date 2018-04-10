@@ -154,18 +154,10 @@ namespace Hangfire
         {
             var processes = new List<IBackgroundProcess>();
 
-
-            var filterProvider = _options.FilterProvider ?? JobFilterProviders.Providers;
-
-            var factory = new BackgroundJobFactory(filterProvider);
-            var performer = new BackgroundJobPerformer(filterProvider, _options.Activator ?? JobActivator.Current, 
-                _options.UnitOfWorkManager ?? UnitOfWorkManager.Current);
-            var stateChanger = new BackgroundJobStateChanger(filterProvider);
-            
             factory = factory ?? new BackgroundJobFactory(filterProvider);
-            performer = performer ?? new BackgroundJobPerformer(filterProvider, activator);
+            performer = performer ?? new BackgroundJobPerformer(filterProvider, activator, _options.UnitOfWorkManager ?? UnitOfWorkManager.Current);
             stateChanger = stateChanger ?? new BackgroundJobStateChanger(filterProvider);
-            
+
             for (var i = 0; i < _options.WorkerCount; i++)
             {
                 processes.Add(new Worker(_options.Queues, performer, stateChanger));

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire</id>
-	<version>1.6.16.6000</version>
+	<version>1.6.19.6000</version>
     <title>Hangfire</title>
     <authors>Sergey Odinokov</authors>
     <owners>odinserj</owners>
@@ -311,8 +311,8 @@ Hangfire.SqlServer.Msmq
     </releaseNotes>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="Hangfire.Core" version="1.6.8.6000" />
-        <dependency id="Hangfire.SqlServer" version="1.6.8.6000" />
+        <dependency id="Hangfire.Core" version="1.6.19.6000" />
+        <dependency id="Hangfire.SqlServer" version="1.6.19.6000" />
         <dependency id="Microsoft.Owin.Host.SystemWeb" version="3.0.0" />
       </group>
       <!--

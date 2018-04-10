@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hangfire.SqlServer</id>
-	<version>1.6.16.6000</version>
+	<version>1.6.19.6000</version>
     <title>Hangfire SQL Server Storage</title>
     <authors>Sergey Odinokov</authors>
     <owners>odinserj</owners>
@@ -97,7 +97,7 @@
     </releaseNotes>
     <dependencies>
       <group targetFramework="net45">
-        <dependency id="Hangfire.Core" version="1.6.8.6000" />
+        <dependency id="Hangfire.Core" version="1.6.19.6000" />
       </group>
       <!--
       <group targetFramework="netstandard1.3">
